@@ -265,8 +265,38 @@ async function toggleBloqueo(pin, estado) {
     cargarUsuariosAdmin();
 }
 
-function exportarDatos() {
-    alert("Reporte generado. Formato compatible para reunión listo.");
+async function exportarDatos() {
+    // 1. Obtener todos los usuarios de la base de datos
+    const snap = await db.collection("usuarios").get();
+    
+    // 2. Definir los encabezados del reporte (Excel entiende CSV)
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Nombre,Apellidos,Proyecto,PIN,Monto Inicial,Total Gastado,Saldo Restante,Estado\n";
+
+    // 3. Recorrer cada usuario y sumar sus gastos
+    snap.forEach(doc => {
+        const u = doc.data();
+        const totalGastado = u.comprobaciones.reduce((s, i) => s + i.monto, 0);
+        const saldo = u.montoInicial - totalGastado;
+        const estado = u.bloqueado ? "Bloqueado" : "Activo";
+
+        // Crear la fila del Excel
+        csvContent += `${u.nombre},${u.apellidos},${u.proyecto},${u.codigo},${u.montoInicial},${totalGastado},${saldo},${estado}\n`;
+    });
+
+    // 4. Crear el mecanismo de descarga automática
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Reporte_ProyectoEmprende2026.csv");
+    document.body.appendChild(link); // Requerido para Firefox
+
+    // 5. Ejecutar la descarga
+    link.click();
+    
+    // 6. Limpieza
+    document.body.removeChild(link);
+    alert("El reporte se ha descargado. Puedes abrirlo con Excel para imprimirlo.");
 }
 </script>
 </body>
