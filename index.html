@@ -3,62 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FondeoEmprende2026 - Plataforma Operativa</title>
+    <title>Plataforma Operativa - FondeoEmprende2026</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
 
     <style>
         :root { --azul: #0a192f; --dorado: #d4af37; --verde: #004d40; --gris-f: #f8f9fa; }
-        
-        body { background: var(--gris-f); font-family: 'Segoe UI', sans-serif; transition: 0.3s; }
-        
-        /* Navbar con Branding */
+        body { background: var(--gris-f); font-family: 'Segoe UI', sans-serif; }
         .navbar { background: var(--azul); border-bottom: 3px solid var(--dorado); padding: 10px 0; }
-        .navbar-brand img { 
-            height: 60px; 
-            background: white; 
-            padding: 5px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        /* Tarjetas Estilizadas */
-        .card-custom { 
-            border-radius: 20px; border: none; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
-            background: white; margin-bottom: 20px;
-        }
-
-        /* Botones Pro */
-        .btn-3d { 
-            background: var(--verde); color: white; border: none; padding: 12px;
-            border-bottom: 4px solid #002b24; font-weight: bold; border-radius: 12px;
-        }
+        .navbar-brand img { height: 50px; background: white; padding: 2px; border-radius: 5px; }
+        .card-custom { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.08); background: white; margin-bottom: 20px; }
+        .btn-3d { background: var(--verde); color: white; border: none; padding: 12px; border-bottom: 4px solid #002b24; font-weight: bold; border-radius: 12px; transition: 0.2s; }
         .btn-3d:active { transform: translateY(3px); border-bottom: 0; }
-
-        /* Asistente Flotante */
-        #asistente-btn {
-            position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px;
-            border-radius: 50%; background: var(--dorado); color: var(--azul);
-            border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            font-size: 30px; z-index: 2000; cursor: pointer;
-        }
-
-        #panel-ayuda {
-            position: fixed; bottom: 105px; right: 30px; width: 320px;
-            background: white; border-radius: 20px; overflow: hidden;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2); z-index: 1999;
-            display: none; border: 1px solid rgba(0,0,0,0.1);
-        }
-        .ayuda-header { background: var(--azul); color: white; padding: 15px; font-weight: bold; }
-
         .section-hidden { display: none !important; }
-        .text-dorado { color: var(--dorado); }
+        #asistente-btn { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; background: var(--dorado); color: var(--azul); border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.3); font-size: 30px; z-index: 2000; cursor: pointer; }
+        #panel-ayuda { position: fixed; bottom: 105px; right: 30px; width: 320px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.2); z-index: 1999; display: none; border: 1px solid rgba(0,0,0,0.1); }
+        .ayuda-header { background: var(--azul); color: white; padding: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -67,11 +31,11 @@
     <div class="container d-flex justify-content-between align-items-center">
         <a class="navbar-brand d-flex align-items-center" href="#">
             <img src="https://raw.githubusercontent.com/proyectoemprende2026/Plataforma/main/LogoFondeoEmprende2026.jpg" alt="FondeoEmprende2026">
-            <span class="ms-3 fw-bold d-none d-sm-inline">FondeoEmprende2026</span>
+            <span class="ms-3 fw-bold d-none d-sm-inline text-white">FondeoEmprende2026</span>
         </a>
         <div class="d-flex gap-2">
             <button onclick="navegar('pantalla-login')" class="btn btn-outline-warning btn-sm fw-bold">YA TENGO MI PIN</button>
-            <button onclick="accesoAdmin()" class="btn btn-sm btn-light fw-bold text-navy">ADMIN</button>
+            <button onclick="accesoAdmin()" class="btn btn-sm btn-light fw-bold">ADMIN</button>
         </div>
     </div>
 </nav>
@@ -80,25 +44,23 @@
 
     <div id="pantalla-registro" class="row justify-content-center">
         <div class="col-md-7 col-lg-6">
-            <div class="card card-custom p-4">
-                <h3 class="fw-bold text-center mb-4">Registro de Beneficiario</h3>
-                <div class="row g-3">
-                    <div class="col-sm-6"><input type="text" id="reg-nombre" class="form-control" placeholder="Nombre(s)"></div>
-                    <div class="col-sm-6"><input type="text" id="reg-apellidos" class="form-control" placeholder="Apellidos"></div>
-                    <div class="col-12"><input type="text" id="proy-nombre" class="form-control" placeholder="Nombre del Proyecto"></div>
-                    <div class="col-12">
-                        <input type="url" id="reg-link-proyecto" class="form-control" placeholder="Link Drive del Proyecto">
-                    </div>
+            <div class="card card-custom p-4 text-center">
+                <h3 class="fw-bold mb-4">Registro de Beneficiario</h3>
+                <div class="row g-3 text-start">
+                    <div class="col-sm-6"><label class="small fw-bold">Nombre</label><input type="text" id="reg-nombre" class="form-control" placeholder="Nombre(s)"></div>
+                    <div class="col-sm-6"><label class="small fw-bold">Apellidos</label><input type="text" id="reg-apellidos" class="form-control" placeholder="Apellidos"></div>
+                    <div class="col-12"><label class="small fw-bold">Nombre del Proyecto</label><input type="text" id="proy-nombre" class="form-control" placeholder="Ej. Expansión Tecnológica"></div>
+                    <div class="col-12"><label class="small fw-bold">Link Drive Proyecto</label><input type="url" id="reg-link-proyecto" class="form-control" placeholder="https://drive.google.com/..."></div>
                 </div>
-                <div class="mt-4 p-3 bg-light rounded-4 border text-center">
-                    <h6 class="fw-bold small">Añadir Partidas</h6>
+                <div class="mt-4 p-3 bg-light rounded-4 border">
+                    <h6 class="fw-bold small">Definir Partidas Presupuestales</h6>
                     <div class="input-group mb-2">
                         <input type="text" id="partida-input" class="form-control" placeholder="Ej: Maquinaria">
                         <button onclick="addPartida()" class="btn btn-dark">Añadir</button>
                     </div>
-                    <ul id="lista-partidas" class="list-unstyled small text-muted"></ul>
+                    <ul id="lista-partidas" class="text-start small text-muted"></ul>
                 </div>
-                <button onclick="crearCuenta()" class="btn btn-3d w-100 mt-4">GENERAR ACCESO</button>
+                <button onclick="crearCuenta()" class="btn btn-3d w-100 mt-4">GENERAR MI ACCESO OPERATIVO</button>
             </div>
         </div>
     </div>
@@ -106,10 +68,10 @@
     <div id="pantalla-login" class="row justify-content-center section-hidden">
         <div class="col-md-5">
             <div class="card card-custom p-4 text-center">
-                <img src="https://raw.githubusercontent.com/proyectoemprende2026/Plataforma/main/LogoFondeoEmprende2026.jpg" height="100" class="mx-auto mb-3 rounded shadow-sm">
+                <img src="https://raw.githubusercontent.com/proyectoemprende2026/Plataforma/main/LogoFondeoEmprende2026.jpg" height="80" class="mx-auto mb-3">
                 <h4 class="fw-bold">Acceso Clientes</h4>
                 <p class="text-muted small">Ingresa tu PIN de 4 dígitos</p>
-                <input type="text" id="login-pin" class="form-control form-control-lg text-center fs-1 fw-bold mb-4" maxlength="4" placeholder="0000">
+                <input type="text" id="login-pin" class="form-control form-control-lg text-center fs-2 fw-bold mb-4" maxlength="4" placeholder="0000">
                 <button onclick="validarPin()" class="btn btn-3d w-100">ENTRAR AL DASHBOARD</button>
                 <button onclick="navegar('pantalla-registro')" class="btn btn-link btn-sm mt-3 text-secondary text-decoration-none">← Volver al Registro</button>
             </div>
@@ -119,11 +81,11 @@
     <div id="pantalla-exito" class="row justify-content-center section-hidden">
         <div class="col-md-5 text-center">
             <div class="card card-custom p-4">
-                <h3 class="text-success fw-bold">¡Bienvenido!</h3>
-                <p>Tu PIN de acceso es:</p>
-                <h1 id="show-pin" class="display-1 fw-bold"></h1>
+                <h3 class="text-success fw-bold">¡Registro Exitoso!</h3>
+                <p>Tu código de acceso operativo es:</p>
+                <h1 id="show-pin" class="display-1 fw-bold text-navy"></h1>
                 <div id="qrcode" class="d-flex justify-content-center my-4"></div>
-                <p class="small text-danger fw-bold">⚠️ Toma captura. No se puede recuperar.</p>
+                <p class="small text-danger fw-bold">⚠️ Captura esta pantalla. No hay recuperación de PIN.</p>
                 <button onclick="navegar('pantalla-login')" class="btn btn-3d w-100">IR AL ACCESO</button>
             </div>
         </div>
@@ -132,32 +94,34 @@
     <div id="pantalla-dashboard" class="section-hidden">
         <div class="row">
             <div class="col-lg-5">
-                <div class="card card-custom p-4 text-center shadow-lg">
-                    <h5 id="dash-user-name" class="fw-bold text-navy">--</h5>
+                <div class="card card-custom p-4 text-center">
+                    <h5 id="dash-user-name" class="fw-bold text-uppercase">--</h5>
                     <p class="small text-muted mb-4" id="dash-proy-name">--</p>
-                    <div class="mb-1"><span class="badge bg-primary">SALDO DISPONIBLE</span></div>
+                    <div class="mb-1"><span class="badge bg-primary">FONDO TOTAL: $13.5M</span></div>
                     <h2 id="dash-saldo" class="fw-bold display-6 mb-4">$13,500,000.00</h2>
                     <div style="height: 250px;"><canvas id="mainChart"></canvas></div>
                 </div>
             </div>
             <div class="col-lg-7">
-                <div class="card card-custom p-4 border-top border-4 border-primary">
-                    <h6 class="fw-bold mb-3">SUBIR COMPROBANTE</h6>
-                    <div class="row g-2">
-                        <div class="col-md-6"><select id="dash-sel-partida" class="form-select"></select></div>
-                        <div class="col-md-6"><input type="number" id="dash-monto" class="form-control" placeholder="Monto MXN"></div>
-                        <div class="col-12"><input type="url" id="dash-link" class="form-control" placeholder="Enlace Drive (PDF)"></div>
-                        <button onclick="subirGasto()" class="btn btn-3d w-100 mt-3">ACTUALIZAR SALDO</button>
+                <div class="card card-custom p-4 border-top border-4 border-success shadow">
+                    <h6 class="fw-bold mb-3">SUBIR COMPROBACIÓN FISCAL</h6>
+                    <div class="row g-2 text-start">
+                        <div class="col-md-6"><label class="small fw-bold">Partida</label><select id="dash-sel-partida" class="form-select"></select></div>
+                        <div class="col-md-6"><label class="small fw-bold">Monto MXN</label><input type="number" id="dash-monto" class="form-control" placeholder="0.00"></div>
+                        <div class="col-12"><label class="small fw-bold">Enlace Comprobante (Drive)</label><input type="url" id="dash-link" class="form-control" placeholder="https://drive.google.com/..."></div>
+                        <button onclick="subirGasto()" class="btn btn-3d w-100 mt-3">REGISTRAR Y ACTUALIZAR SALDO</button>
                     </div>
                 </div>
                 <div class="card card-custom p-4">
-                    <h6 class="fw-bold mb-3">HISTORIAL</h6>
+                    <h6 class="fw-bold mb-3">HISTORIAL DE OPERACIONES</h6>
                     <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead class="table-light"><tr><th>Partida</th><th>Monto</th><th>Doc</th></tr></thead>
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light small"><tr><th>Partida</th><th>Monto</th><th>Link</th></tr></thead>
                             <tbody id="tabla-body" class="small"></tbody>
                         </table>
                     </div>
+                    <hr>
+                    <button onclick="cerrarDashboard()" class="btn btn-danger w-100 fw-bold">FINALIZAR SESIÓN Y SALIR</button>
                 </div>
             </div>
         </div>
@@ -167,218 +131,99 @@
 
 <button id="asistente-btn" onclick="toggleAyuda()">💡</button>
 <div id="panel-ayuda">
-    <div class="ayuda-header">Asistente FondeoEmprende2026</div>
+    <div class="ayuda-header d-flex justify-content-between"><span>Asistencia Digital</span><span onclick="toggleAyuda()" style="cursor:pointer">×</span></div>
     <div class="p-3 small">
-        <p>1. Para entrar usa el PIN que generaste al inicio.</p>
-        <p>2. Sube tus facturas a Drive y asegúrate que el link sea público.</p>
-        <p>3. El saldo se actualiza al instante.</p>
-        <button class="btn btn-navy btn-sm w-100" onclick="toggleAyuda()">Entendido</button>
+        <p><strong>Registro:</strong> Ingresa tus datos y obtén tu PIN.</p>
+        <p><strong>Carga:</strong> Sube facturas de Drive y pon el monto real.</p>
+        <p><strong>Salida:</strong> Siempre usa el botón rojo de "Finalizar Sesión" al terminar.</p>
     </div>
 </div>
 
 <script>
-// CONFIG FIREBASE (Tus credenciales se mantienen igual)
-const firebaseConfig = {
-    apiKey: "AIzaSyA1T0OaksBYi9-E9MlIUJvKnoQ2e6uOCx8",
-    authDomain: "proyectoemprende26.firebaseapp.com",
-    projectId: "proyectoemprende26",
-    storageBucket: "proyectoemprende26.firebasestorage.app",
-    messagingSenderId: "57446946914",
-    appId: "1:57446946914:web:cf9ff716e038b866d8193b"
-};
+const firebaseConfig = { apiKey: "AIzaSyA1T0OaksBYi9-E9MlIUJvKnoQ2e6uOCx8", authDomain: "proyectoemprende26.firebaseapp.com", projectId: "proyectoemprende26", storageBucket: "proyectoemprende26.firebasestorage.app", messagingSenderId: "57446946914", appId: "1:57446946914:web:cf9ff716e038b866d8193b" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-let v_partidas = [];
-let v_user = null;
-let v_chart = null;
+let v_partidas = []; let v_user = null; let v_chart = null;
 
-// Función de navegación corregida
 function navegar(id) {
-    // Ocultar todas las secciones principales
     document.getElementById('pantalla-registro').classList.add('section-hidden');
     document.getElementById('pantalla-login').classList.add('section-hidden');
     document.getElementById('pantalla-exito').classList.add('section-hidden');
     document.getElementById('pantalla-dashboard').classList.add('section-hidden');
-    
-    // Mostrar la sección solicitada
     document.getElementById(id).classList.remove('section-hidden');
 }
 
-function toggleAyuda() {
-    const p = document.getElementById('panel-ayuda');
-    p.style.display = (p.style.display === 'block') ? 'none' : 'block';
-}
+function toggleAyuda() { const p = document.getElementById('panel-ayuda'); p.style.display = (p.style.display === 'block') ? 'none' : 'block'; }
 
-function addPartida() {
-    const i = document.getElementById('partida-input');
-    if(i.value) {
-        v_partidas.push(i.value);
-        document.getElementById('lista-partidas').innerHTML += `<li>• ${i.value}</li>`;
-        i.value = '';
-    }
-}
+function addPartida() { const i = document.getElementById('partida-input'); if(i.value) { v_partidas.push(i.value); document.getElementById('lista-partidas').innerHTML += `<li>• ${i.value}</li>`; i.value = ''; } }
 
-// CORRECCIÓN AQUÍ: Generación de PIN y QR
 async function crearCuenta() {
     const nom = document.getElementById('reg-nombre').value;
     const ape = document.getElementById('reg-apellidos').value;
     const proy = document.getElementById('proy-nombre').value;
     const link = document.getElementById('reg-link-proyecto').value;
-
-    if(!nom || !proy || v_partidas.length === 0) {
-        return alert("Por favor, completa el nombre, proyecto y añade al menos una partida.");
-    }
-
-    // 1. Generar PIN
     const pin = Math.floor(1000 + Math.random() * 9000).toString();
+    if(!nom || v_partidas.length === 0) return alert("Completa los datos obligatorios.");
 
-    try {
-        // 2. Guardar en Firebase
-        await db.collection("usuarios").doc(pin).set({
-            nombre: nom + " " + ape,
-            proyecto: proy,
-            pin: pin,
-            linkProyecto: link,
-            partidas: v_partidas,
-            gastos: [],
-            saldoInicial: 13500000,
-            bloqueado: false
-        });
-
-        // 3. Preparar Pantalla de Éxito
-        document.getElementById('show-pin').innerText = pin;
-        
-        // Limpiar QR anterior si existe
-        const qrContainer = document.getElementById("qrcode");
-        qrContainer.innerHTML = ""; 
-        
-        // Generar nuevo QR
-        new QRCode(qrContainer, {
-            text: pin,
-            width: 160,
-            height: 160,
-            colorDark : "#0a192f",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
-        });
-
-        // 4. Saltar a pantalla de éxito
-        navegar('pantalla-exito');
-
-    } catch (error) {
-        console.error("Error al registrar:", error);
-        alert("Error de conexión con la base de datos.");
-    }
+    await db.collection("usuarios").doc(pin).set({ nombre: nom + " " + ape, proyecto: proy, pin: pin, linkProyecto: link, partidas: v_partidas, gastos: [], saldoInicial: 13500000, bloqueado: false });
+    document.getElementById('show-pin').innerText = pin;
+    const qrContainer = document.getElementById("qrcode"); qrContainer.innerHTML = "";
+    new QRCode(qrContainer, { text: pin, width: 160, height: 160 });
+    navegar('pantalla-exito');
 }
 
 async function validarPin() {
     const pin = document.getElementById('login-pin').value;
-    if(!pin) return alert("Ingresa tu PIN");
-
     const doc = await db.collection("usuarios").doc(pin).get();
-    
     if(doc.exists) {
         v_user = doc.data();
         if(v_user.bloqueado) return alert("Acceso restringido.");
-
         document.getElementById('dash-user-name').innerText = v_user.nombre;
         document.getElementById('dash-proy-name').innerText = v_user.proyecto;
-        
-        const sel = document.getElementById('dash-sel-partida');
-        sel.innerHTML = '';
+        const sel = document.getElementById('dash-sel-partida'); sel.innerHTML = '';
         v_user.partidas.forEach(p => { sel.add(new Option(p, p)); });
-
-        actualizarUI();
-        navegar('pantalla-dashboard');
-    } else {
-        alert("PIN no encontrado. Verifícalo o regístrate de nuevo.");
-    }
+        actualizarUI(); navegar('pantalla-dashboard');
+    } else { alert("PIN incorrecto."); }
 }
 
 async function subirGasto() {
     const mon = parseFloat(document.getElementById('dash-monto').value);
     const part = document.getElementById('dash-sel-partida').value;
     const lnk = document.getElementById('dash-link').value;
+    if(!mon || !lnk) return alert("Faltan datos de comprobación.");
 
-    if(!mon || !lnk) return alert("Ingresa el monto y el enlace del comprobante.");
-
-    v_user.gastos.push({ 
-        partida: part, 
-        monto: mon, 
-        link: lnk,
-        fecha: new Date().toLocaleDateString() 
-    });
-
+    v_user.gastos.push({ partida: part, monto: mon, link: lnk, fecha: new Date().toLocaleDateString() });
     await db.collection("usuarios").doc(v_user.pin).update({ gastos: v_user.gastos });
-
-    document.getElementById('dash-monto').value = '';
-    document.getElementById('dash-link').value = '';
-    actualizarUI();
-    alert("Gasto registrado y saldo actualizado.");
+    document.getElementById('dash-monto').value = ''; document.getElementById('dash-link').value = '';
+    actualizarUI(); alert("Gasto capturado correctamente.");
 }
 
 function actualizarUI() {
     const gastado = v_user.gastos.reduce((a, b) => a + b.monto, 0);
     const saldo = 13500000 - gastado;
-    
     document.getElementById('dash-saldo').innerText = "$" + saldo.toLocaleString('es-MX', {minimumFractionDigits:2});
-    
-    const body = document.getElementById('tabla-body');
-    body.innerHTML = '';
+    const body = document.getElementById('tabla-body'); body.innerHTML = '';
     v_user.gastos.slice().reverse().forEach(g => {
-        body.innerHTML += `<tr>
-            <td>${g.partida}</td>
-            <td>$${g.monto.toLocaleString()}</td>
-            <td><a href="${g.link}" target="_blank" class="text-primary text-decoration-none">Ver 🔗</a></td>
-        </tr>`;
+        body.innerHTML += `<tr><td>${g.partida}</td><td>$${g.monto.toLocaleString()}</td><td><a href="${g.link}" target="_blank">🔗</a></td></tr>`;
     });
-
     const ctx = document.getElementById('mainChart').getContext('2d');
     if(v_chart) v_chart.destroy();
-    v_chart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Disponible', 'Ejercido'],
-            datasets: [{ 
-                data: [saldo, gastado], 
-                backgroundColor: ['#0a192f', '#d4af37'], 
-                borderWidth: 0 
-            }]
-        },
-        options: { 
-            maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom' } }
-        }
-    });
+    v_chart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Disponible', 'Ejercido'], datasets: [{ data: [saldo, gastado], backgroundColor: ['#0a192f', '#d4af37'], borderWidth: 0 }] }, options: { maintainAspectRatio: false } });
 }
 
-function accesoAdmin() {
-    const pass = prompt("Clave de Auditoría:");
-    if(pass === "Admin100583") {
-        navegar('pantalla-admin');
-        loadAdmin();
+// FUNCIÓN DE CIERRE DE SESIÓN
+function cerrarDashboard() {
+    if(confirm("¿Deseas cerrar tu sesión? Asegúrate de haber guardado tus cambios.")) {
+        v_user = null; // Limpiar memoria
+        document.getElementById('login-pin').value = ''; // Limpiar campo de PIN
+        navegar('pantalla-login'); // Volver al inicio
     }
 }
 
-async function loadAdmin() {
-    const snap = await db.collection("usuarios").get();
-    const t = document.getElementById('admin-table');
-    t.innerHTML = '';
-    snap.forEach(d => {
-        const u = d.data();
-        t.innerHTML += `<tr>
-            <td>${u.nombre}</td>
-            <td>${u.proyecto}</td>
-            <td><code>${u.pin}</code></td>
-            <td><button onclick="toggleBloq('${u.pin}', ${u.bloqueado})" class="btn btn-sm ${u.bloqueado?'btn-success':'btn-danger'}">${u.bloqueado?'Liberar':'Bloquear'}</button></td>
-        </tr>`;
-    });
-}
-
-async function toggleBloq(p, s) {
-    await db.collection("usuarios").doc(p).update({ bloqueado: !s });
-    loadAdmin();
+function accesoAdmin() {
+    const pass = prompt("Clave Auditor:");
+    if(pass === "Admin100583") { alert("Cargando Panel Maestro..."); }
 }
 </script>
 </body>
