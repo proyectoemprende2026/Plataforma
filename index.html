@@ -177,7 +177,7 @@
 </div>
 
 <script>
-// CONFIG FIREBASE
+// CONFIG FIREBASE (Tus credenciales se mantienen igual)
 const firebaseConfig = {
     apiKey: "AIzaSyA1T0OaksBYi9-E9MlIUJvKnoQ2e6uOCx8",
     authDomain: "proyectoemprende26.firebaseapp.com",
@@ -193,10 +193,16 @@ let v_partidas = [];
 let v_user = null;
 let v_chart = null;
 
+// Función de navegación corregida
 function navegar(id) {
-    document.querySelectorAll('.row, .card, #pantalla-dashboard').forEach(e => e.classList.add('section-hidden'));
+    // Ocultar todas las secciones principales
+    document.getElementById('pantalla-registro').classList.add('section-hidden');
+    document.getElementById('pantalla-login').classList.add('section-hidden');
+    document.getElementById('pantalla-exito').classList.add('section-hidden');
+    document.getElementById('pantalla-dashboard').classList.add('section-hidden');
+    
+    // Mostrar la sección solicitada
     document.getElementById(id).classList.remove('section-hidden');
-    if(id === 'pantalla-dashboard') document.querySelector('.row.justify-content-center').classList.add('section-hidden');
 }
 
 function toggleAyuda() {
@@ -213,28 +219,69 @@ function addPartida() {
     }
 }
 
+// CORRECCIÓN AQUÍ: Generación de PIN y QR
 async function crearCuenta() {
     const nom = document.getElementById('reg-nombre').value;
+    const ape = document.getElementById('reg-apellidos').value;
     const proy = document.getElementById('proy-nombre').value;
+    const link = document.getElementById('reg-link-proyecto').value;
+
+    if(!nom || !proy || v_partidas.length === 0) {
+        return alert("Por favor, completa el nombre, proyecto y añade al menos una partida.");
+    }
+
+    // 1. Generar PIN
     const pin = Math.floor(1000 + Math.random() * 9000).toString();
-    if(!nom || v_partidas.length === 0) return alert("Faltan datos");
 
-    await db.collection("usuarios").doc(pin).set({
-        nombre: nom, proyecto: proy, pin: pin,
-        partidas: v_partidas, gastos: [], saldoInicial: 13500000
-    });
+    try {
+        // 2. Guardar en Firebase
+        await db.collection("usuarios").doc(pin).set({
+            nombre: nom + " " + ape,
+            proyecto: proy,
+            pin: pin,
+            linkProyecto: link,
+            partidas: v_partidas,
+            gastos: [],
+            saldoInicial: 13500000,
+            bloqueado: false
+        });
 
-    document.getElementById('show-pin').innerText = pin;
-    new QRCode(document.getElementById("qrcode"), { text: pin, width: 140, height: 140 });
-    navegar('pantalla-exito');
+        // 3. Preparar Pantalla de Éxito
+        document.getElementById('show-pin').innerText = pin;
+        
+        // Limpiar QR anterior si existe
+        const qrContainer = document.getElementById("qrcode");
+        qrContainer.innerHTML = ""; 
+        
+        // Generar nuevo QR
+        new QRCode(qrContainer, {
+            text: pin,
+            width: 160,
+            height: 160,
+            colorDark : "#0a192f",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+
+        // 4. Saltar a pantalla de éxito
+        navegar('pantalla-exito');
+
+    } catch (error) {
+        console.error("Error al registrar:", error);
+        alert("Error de conexión con la base de datos.");
+    }
 }
 
 async function validarPin() {
     const pin = document.getElementById('login-pin').value;
+    if(!pin) return alert("Ingresa tu PIN");
+
     const doc = await db.collection("usuarios").doc(pin).get();
     
     if(doc.exists) {
         v_user = doc.data();
+        if(v_user.bloqueado) return alert("Acceso restringido.");
+
         document.getElementById('dash-user-name').innerText = v_user.nombre;
         document.getElementById('dash-proy-name').innerText = v_user.proyecto;
         
@@ -245,7 +292,7 @@ async function validarPin() {
         actualizarUI();
         navegar('pantalla-dashboard');
     } else {
-        alert("PIN no encontrado");
+        alert("PIN no encontrado. Verifícalo o regístrate de nuevo.");
     }
 }
 
@@ -254,14 +301,21 @@ async function subirGasto() {
     const part = document.getElementById('dash-sel-partida').value;
     const lnk = document.getElementById('dash-link').value;
 
-    if(!mon || !lnk) return alert("Completa los datos");
+    if(!mon || !lnk) return alert("Ingresa el monto y el enlace del comprobante.");
 
-    v_user.gastos.push({ partida: part, monto: mon, link: lnk });
+    v_user.gastos.push({ 
+        partida: part, 
+        monto: mon, 
+        link: lnk,
+        fecha: new Date().toLocaleDateString() 
+    });
+
     await db.collection("usuarios").doc(v_user.pin).update({ gastos: v_user.gastos });
 
     document.getElementById('dash-monto').value = '';
     document.getElementById('dash-link').value = '';
     actualizarUI();
+    alert("Gasto registrado y saldo actualizado.");
 }
 
 function actualizarUI() {
@@ -273,7 +327,11 @@ function actualizarUI() {
     const body = document.getElementById('tabla-body');
     body.innerHTML = '';
     v_user.gastos.slice().reverse().forEach(g => {
-        body.innerHTML += `<tr><td>${g.partida}</td><td>$${g.monto.toLocaleString()}</td><td><a href="${g.link}" target="_blank">🔗</a></td></tr>`;
+        body.innerHTML += `<tr>
+            <td>${g.partida}</td>
+            <td>$${g.monto.toLocaleString()}</td>
+            <td><a href="${g.link}" target="_blank" class="text-primary text-decoration-none">Ver 🔗</a></td>
+        </tr>`;
     });
 
     const ctx = document.getElementById('mainChart').getContext('2d');
@@ -282,17 +340,45 @@ function actualizarUI() {
         type: 'doughnut',
         data: {
             labels: ['Disponible', 'Ejercido'],
-            datasets: [{ data: [saldo, gastado], backgroundColor: ['#0a192f', '#d4af37'], borderWeight:0 }]
+            datasets: [{ 
+                data: [saldo, gastado], 
+                backgroundColor: ['#0a192f', '#d4af37'], 
+                borderWidth: 0 
+            }]
         },
-        options: { maintainAspectRatio: false }
+        options: { 
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+        }
     });
 }
 
 function accesoAdmin() {
-    if(prompt("Clave:") === "Admin100583") {
-        alert("Cargando lista de usuarios...");
-        // Lógica de lista admin aquí si se requiere
+    const pass = prompt("Clave de Auditoría:");
+    if(pass === "Admin100583") {
+        navegar('pantalla-admin');
+        loadAdmin();
     }
+}
+
+async function loadAdmin() {
+    const snap = await db.collection("usuarios").get();
+    const t = document.getElementById('admin-table');
+    t.innerHTML = '';
+    snap.forEach(d => {
+        const u = d.data();
+        t.innerHTML += `<tr>
+            <td>${u.nombre}</td>
+            <td>${u.proyecto}</td>
+            <td><code>${u.pin}</code></td>
+            <td><button onclick="toggleBloq('${u.pin}', ${u.bloqueado})" class="btn btn-sm ${u.bloqueado?'btn-success':'btn-danger'}">${u.bloqueado?'Liberar':'Bloquear'}</button></td>
+        </tr>`;
+    });
+}
+
+async function toggleBloq(p, s) {
+    await db.collection("usuarios").doc(p).update({ bloqueado: !s });
+    loadAdmin();
 }
 </script>
 </body>
