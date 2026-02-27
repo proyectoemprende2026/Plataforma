@@ -14,23 +14,31 @@
     <style>
         :root { --azul: #0a192f; --dorado: #d4af37; --verde: #004d40; --gris-f: #f8f9fa; }
         body { background: var(--gris-f); font-family: 'Segoe UI', sans-serif; }
+        
+        /* Navbar con funcionalidad de retorno */
         .navbar { background: var(--azul); border-bottom: 3px solid var(--dorado); padding: 10px 0; }
+        .navbar-brand { cursor: pointer; transition: 0.3s; }
+        .navbar-brand:hover { opacity: 0.8; transform: scale(1.02); }
         .navbar-brand img { height: 50px; background: white; padding: 2px; border-radius: 5px; }
+        
         .card-custom { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.08); background: white; margin-bottom: 20px; }
         .btn-3d { background: var(--verde); color: white; border: none; padding: 12px; border-bottom: 4px solid #002b24; font-weight: bold; border-radius: 12px; transition: 0.2s; }
         .btn-3d:active { transform: translateY(3px); border-bottom: 0; }
         .section-hidden { display: none !important; }
+        
+        /* Estilos Admin */
+        .admin-row { font-size: 0.85rem; vertical-align: middle; }
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-weight: bold; }
+        
         #asistente-btn { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; background: var(--dorado); color: var(--azul); border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.3); font-size: 30px; z-index: 2000; cursor: pointer; }
-        #panel-ayuda { position: fixed; bottom: 105px; right: 30px; width: 320px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.2); z-index: 1999; display: none; border: 1px solid rgba(0,0,0,0.1); }
-        .ayuda-header { background: var(--azul); color: white; padding: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-dark shadow">
     <div class="container d-flex justify-content-between align-items-center">
-        <a class="navbar-brand d-flex align-items-center" href="#">
-            <img src="https://raw.githubusercontent.com/proyectoemprende2026/Plataforma/main/LogoFondeoEmprende2026.jpg" alt="FondeoEmprende2026">
+        <a class="navbar-brand d-flex align-items-center" href="https://proyectoemprende2026.github.io/Principal/">
+            <img src="https://raw.githubusercontent.com/proyectoemprende2026/Plataforma/main/LogoFondeoEmprende2026.jpg" alt="Logo">
             <span class="ms-3 fw-bold d-none d-sm-inline text-white">FondeoEmprende2026</span>
         </a>
         <div class="d-flex gap-2">
@@ -60,7 +68,7 @@
                     </div>
                     <ul id="lista-partidas" class="text-start small text-muted"></ul>
                 </div>
-                <button onclick="crearCuenta()" class="btn btn-3d w-100 mt-4">GENERAR MI ACCESO OPERATIVO</button>
+                <button onclick="crearCuenta()" class="btn btn-3d w-100 mt-4">GENERAR ACCESO</button>
             </div>
         </div>
     </div>
@@ -68,25 +76,11 @@
     <div id="pantalla-login" class="row justify-content-center section-hidden">
         <div class="col-md-5">
             <div class="card card-custom p-4 text-center">
-                <img src="https://raw.githubusercontent.com/proyectoemprende2026/Plataforma/main/LogoFondeoEmprende2026.jpg" height="80" class="mx-auto mb-3">
                 <h4 class="fw-bold">Acceso Clientes</h4>
                 <p class="text-muted small">Ingresa tu PIN de 4 dígitos</p>
                 <input type="text" id="login-pin" class="form-control form-control-lg text-center fs-2 fw-bold mb-4" maxlength="4" placeholder="0000">
                 <button onclick="validarPin()" class="btn btn-3d w-100">ENTRAR AL DASHBOARD</button>
                 <button onclick="navegar('pantalla-registro')" class="btn btn-link btn-sm mt-3 text-secondary text-decoration-none">← Volver al Registro</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="pantalla-exito" class="row justify-content-center section-hidden">
-        <div class="col-md-5 text-center">
-            <div class="card card-custom p-4">
-                <h3 class="text-success fw-bold">¡Registro Exitoso!</h3>
-                <p>Tu código de acceso operativo es:</p>
-                <h1 id="show-pin" class="display-1 fw-bold text-navy"></h1>
-                <div id="qrcode" class="d-flex justify-content-center my-4"></div>
-                <p class="small text-danger fw-bold">⚠️ Captura esta pantalla. No hay recuperación de PIN.</p>
-                <button onclick="navegar('pantalla-login')" class="btn btn-3d w-100">IR AL ACCESO</button>
             </div>
         </div>
     </div>
@@ -97,49 +91,61 @@
                 <div class="card card-custom p-4 text-center">
                     <h5 id="dash-user-name" class="fw-bold text-uppercase">--</h5>
                     <p class="small text-muted mb-4" id="dash-proy-name">--</p>
-                    <div class="mb-1"><span class="badge bg-primary">FONDO TOTAL: $13.5M</span></div>
                     <h2 id="dash-saldo" class="fw-bold display-6 mb-4">$13,500,000.00</h2>
                     <div style="height: 250px;"><canvas id="mainChart"></canvas></div>
                 </div>
             </div>
             <div class="col-lg-7">
-                <div class="card card-custom p-4 border-top border-4 border-success shadow">
+                <div class="card card-custom p-4 border-top border-4 border-success">
                     <h6 class="fw-bold mb-3">SUBIR COMPROBACIÓN FISCAL</h6>
                     <div class="row g-2 text-start">
                         <div class="col-md-6"><label class="small fw-bold">Partida</label><select id="dash-sel-partida" class="form-select"></select></div>
                         <div class="col-md-6"><label class="small fw-bold">Monto MXN</label><input type="number" id="dash-monto" class="form-control" placeholder="0.00"></div>
                         <div class="col-12"><label class="small fw-bold">Enlace Comprobante (Drive)</label><input type="url" id="dash-link" class="form-control" placeholder="https://drive.google.com/..."></div>
-                        <button onclick="subirGasto()" class="btn btn-3d w-100 mt-3">REGISTRAR Y ACTUALIZAR SALDO</button>
+                        <button onclick="subirGasto()" class="btn btn-3d w-100 mt-3">ACTUALIZAR SALDO</button>
                     </div>
                 </div>
                 <div class="card card-custom p-4">
-                    <h6 class="fw-bold mb-3">HISTORIAL DE OPERACIONES</h6>
+                    <h6 class="fw-bold mb-3">HISTORIAL</h6>
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light small"><tr><th>Partida</th><th>Monto</th><th>Link</th></tr></thead>
+                        <table class="table table-sm align-middle">
                             <tbody id="tabla-body" class="small"></tbody>
                         </table>
                     </div>
-                    <hr>
-                    <button onclick="cerrarDashboard()" class="btn btn-danger w-100 fw-bold">FINALIZAR SESIÓN Y SALIR</button>
+                    <button onclick="cerrarDashboard()" class="btn btn-danger w-100 fw-bold mt-3">CERRAR SESIÓN</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pantalla-admin" class="section-hidden">
+        <div class="card card-custom p-4 shadow-lg">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <h4 class="fw-bold text-navy mb-0">Panel Maestro de Auditoría</h4>
+                <button onclick="navegar('pantalla-registro')" class="btn btn-sm btn-secondary">Salir de Admin</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark small">
+                        <tr>
+                            <th>Beneficiario</th>
+                            <th>Proyecto</th>
+                            <th>PIN</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body" class="admin-row">
+                        </tbody>
+                </table>
             </div>
         </div>
     </div>
 
 </div>
 
-<button id="asistente-btn" onclick="toggleAyuda()">💡</button>
-<div id="panel-ayuda">
-    <div class="ayuda-header d-flex justify-content-between"><span>Asistencia Digital</span><span onclick="toggleAyuda()" style="cursor:pointer">×</span></div>
-    <div class="p-3 small">
-        <p><strong>Registro:</strong> Ingresa tus datos y obtén tu PIN.</p>
-        <p><strong>Carga:</strong> Sube facturas de Drive y pon el monto real.</p>
-        <p><strong>Salida:</strong> Siempre usa el botón rojo de "Finalizar Sesión" al terminar.</p>
-    </div>
-</div>
-
 <script>
+// CONFIG FIREBASE
 const firebaseConfig = { apiKey: "AIzaSyA1T0OaksBYi9-E9MlIUJvKnoQ2e6uOCx8", authDomain: "proyectoemprende26.firebaseapp.com", projectId: "proyectoemprende26", storageBucket: "proyectoemprende26.firebasestorage.app", messagingSenderId: "57446946914", appId: "1:57446946914:web:cf9ff716e038b866d8193b" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -149,28 +155,23 @@ let v_partidas = []; let v_user = null; let v_chart = null;
 function navegar(id) {
     document.getElementById('pantalla-registro').classList.add('section-hidden');
     document.getElementById('pantalla-login').classList.add('section-hidden');
-    document.getElementById('pantalla-exito').classList.add('section-hidden');
     document.getElementById('pantalla-dashboard').classList.add('section-hidden');
+    document.getElementById('pantalla-admin').classList.add('section-hidden');
+    if(document.getElementById('pantalla-exito')) document.getElementById('pantalla-exito').classList.add('section-hidden');
+    
     document.getElementById(id).classList.remove('section-hidden');
 }
-
-function toggleAyuda() { const p = document.getElementById('panel-ayuda'); p.style.display = (p.style.display === 'block') ? 'none' : 'block'; }
 
 function addPartida() { const i = document.getElementById('partida-input'); if(i.value) { v_partidas.push(i.value); document.getElementById('lista-partidas').innerHTML += `<li>• ${i.value}</li>`; i.value = ''; } }
 
 async function crearCuenta() {
     const nom = document.getElementById('reg-nombre').value;
-    const ape = document.getElementById('reg-apellidos').value;
     const proy = document.getElementById('proy-nombre').value;
-    const link = document.getElementById('reg-link-proyecto').value;
     const pin = Math.floor(1000 + Math.random() * 9000).toString();
-    if(!nom || v_partidas.length === 0) return alert("Completa los datos obligatorios.");
-
-    await db.collection("usuarios").doc(pin).set({ nombre: nom + " " + ape, proyecto: proy, pin: pin, linkProyecto: link, partidas: v_partidas, gastos: [], saldoInicial: 13500000, bloqueado: false });
-    document.getElementById('show-pin').innerText = pin;
-    const qrContainer = document.getElementById("qrcode"); qrContainer.innerHTML = "";
-    new QRCode(qrContainer, { text: pin, width: 160, height: 160 });
-    navegar('pantalla-exito');
+    if(!nom || v_partidas.length === 0) return alert("Faltan datos.");
+    await db.collection("usuarios").doc(pin).set({ nombre: nom, proyecto: proy, pin: pin, partidas: v_partidas, gastos: [], saldoInicial: 13500000, bloqueado: false });
+    alert("Usuario Creado. Tu PIN es: " + pin);
+    navegar('pantalla-login');
 }
 
 async function validarPin() {
@@ -178,7 +179,7 @@ async function validarPin() {
     const doc = await db.collection("usuarios").doc(pin).get();
     if(doc.exists) {
         v_user = doc.data();
-        if(v_user.bloqueado) return alert("Acceso restringido.");
+        if(v_user.bloqueado) return alert("Acceso bloqueado por auditoría.");
         document.getElementById('dash-user-name').innerText = v_user.nombre;
         document.getElementById('dash-proy-name').innerText = v_user.proyecto;
         const sel = document.getElementById('dash-sel-partida'); sel.innerHTML = '';
@@ -187,44 +188,70 @@ async function validarPin() {
     } else { alert("PIN incorrecto."); }
 }
 
-async function subirGasto() {
-    const mon = parseFloat(document.getElementById('dash-monto').value);
-    const part = document.getElementById('dash-sel-partida').value;
-    const lnk = document.getElementById('dash-link').value;
-    if(!mon || !lnk) return alert("Faltan datos de comprobación.");
-
-    v_user.gastos.push({ partida: part, monto: mon, link: lnk, fecha: new Date().toLocaleDateString() });
-    await db.collection("usuarios").doc(v_user.pin).update({ gastos: v_user.gastos });
-    document.getElementById('dash-monto').value = ''; document.getElementById('dash-link').value = '';
-    actualizarUI(); alert("Gasto capturado correctamente.");
-}
-
 function actualizarUI() {
     const gastado = v_user.gastos.reduce((a, b) => a + b.monto, 0);
     const saldo = 13500000 - gastado;
     document.getElementById('dash-saldo').innerText = "$" + saldo.toLocaleString('es-MX', {minimumFractionDigits:2});
     const body = document.getElementById('tabla-body'); body.innerHTML = '';
-    v_user.gastos.slice().reverse().forEach(g => {
-        body.innerHTML += `<tr><td>${g.partida}</td><td>$${g.monto.toLocaleString()}</td><td><a href="${g.link}" target="_blank">🔗</a></td></tr>`;
-    });
+    v_user.gastos.slice().reverse().forEach(g => { body.innerHTML += `<tr><td>${g.partida}</td><td>$${g.monto.toLocaleString()}</td><td><a href="${g.link}" target="_blank">🔗</a></td></tr>`; });
     const ctx = document.getElementById('mainChart').getContext('2d');
     if(v_chart) v_chart.destroy();
     v_chart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Disponible', 'Ejercido'], datasets: [{ data: [saldo, gastado], backgroundColor: ['#0a192f', '#d4af37'], borderWidth: 0 }] }, options: { maintainAspectRatio: false } });
 }
 
-// FUNCIÓN DE CIERRE DE SESIÓN
-function cerrarDashboard() {
-    if(confirm("¿Deseas cerrar tu sesión? Asegúrate de haber guardado tus cambios.")) {
-        v_user = null; // Limpiar memoria
-        document.getElementById('login-pin').value = ''; // Limpiar campo de PIN
-        navegar('pantalla-login'); // Volver al inicio
+// CORRECCIÓN PANEL ADMIN
+function accesoAdmin() {
+    const pass = prompt("Clave Auditor:");
+    if(pass === "Admin100583") {
+        navegar('pantalla-admin');
+        cargarUsuariosAdmin();
+    } else {
+        alert("Clave incorrecta.");
     }
 }
 
-function accesoAdmin() {
-    const pass = prompt("Clave Auditor:");
-    if(pass === "Admin100583") { alert("Cargando Panel Maestro..."); }
+async function cargarUsuariosAdmin() {
+    const tbody = document.getElementById('admin-table-body');
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center">Cargando base de datos...</td></tr>';
+    
+    try {
+        const snapshot = await db.collection("usuarios").get();
+        tbody.innerHTML = '';
+        snapshot.forEach(doc => {
+            const u = doc.data();
+            const row = `
+                <tr>
+                    <td><strong class="text-navy">${u.nombre}</strong></td>
+                    <td>${u.proyecto}</td>
+                    <td><span class="badge bg-light text-dark border">PIN: ${u.pin}</span></td>
+                    <td>
+                        <span class="status-badge ${u.bloqueado ? 'bg-danger text-white' : 'bg-success text-white'}">
+                            ${u.bloqueado ? 'BLOQUEADO' : 'ACTIVO'}
+                        </span>
+                    </td>
+                    <td>
+                        <button onclick="toggleBloqueo('${u.pin}', ${u.bloqueado})" class="btn btn-sm btn-dark">
+                            ${u.bloqueado ? 'Desbloquear' : 'Bloquear'}
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-danger text-center">Error al cargar datos.</td></tr>';
+    }
 }
+
+async function toggleBloqueo(pin, estadoActual) {
+    if(confirm("¿Cambiar el estado de acceso para este usuario?")) {
+        await db.collection("usuarios").doc(pin).update({ bloqueado: !estadoActual });
+        cargarUsuariosAdmin(); // Recargar tabla
+    }
+}
+
+function cerrarDashboard() { v_user = null; document.getElementById('login-pin').value = ''; navegar('pantalla-login'); }
+
 </script>
 </body>
 </html>
