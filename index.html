@@ -1,90 +1,278 @@
-<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProyectoEmprende2026 - Gestión Financiera</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --verde-obscuro: #004d40;
+            --dorado: #d4af37;
+            --azul-obscuro: #0a192f;
+        }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Roboto, sans-serif; }
+        .navbar { background-color: var(--azul-obscuro); border-bottom: 4px solid var(--dorado); }
+        
+        /* Estética 3D */
+        .btn-3d {
+            background-color: var(--verde-obscuro); color: white; border: none;
+            border-bottom: 4px solid #00251a; transition: all 0.1s; font-weight: bold;
+        }
+        .btn-3d:active { border-bottom: 0px; transform: translateY(3px); }
+        .btn-edit { background-color: #f39c12; color: white; border-bottom: 3px solid #b77600; border-radius: 5px; border:none;}
+        .btn-delete { background-color: #e74c3c; color: white; border-bottom: 3px solid #962d22; border-radius: 5px; border:none;}
+
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        .card-dashboard { border-radius: 15px; border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .monto-grande { color: var(--azul-obscuro); font-weight: 800; }
+        .tabla-bitacora { font-size: 0.9rem; background: white; border-radius: 10px; overflow: hidden; }
+        .section-hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark p-3 shadow-sm">
+    <div class="container"><span class="navbar-brand fw-bold">PROYECTO EMPRENDE 2026</span></div>
+</nav>
+
+<div class="container mt-4 mb-5">
+    <div id="pantalla-registro" class="card card-dashboard p-4">
+        <h2 style="color: var(--azul-obscuro)">Registro de Proyecto</h2>
+        <div class="row g-3">
+            <div class="col-md-6"><label>Nombre</label><input type="text" id="reg-nombre" class="form-control"></div>
+            <div class="col-md-6"><label>Apellidos</label><input type="text" id="reg-apellidos" class="form-control"></div>
+            <div class="col-12"><label>Nombre del Proyecto</label><input type="text" id="proy-nombre" class="form-control"></div>
+        </div>
+        
+        <div class="bg-light p-3 rounded border mt-3">
+            <h6 class="fw-bold">Configuración de Partidas Iniciales</h6>
+            <div class="row g-2">
+                <div class="col-8"><input type="text" id="input-partida-nombre" class="form-control" placeholder="Ej. Maquinaria"></div>
+                <div class="col-4"><button onclick="salvarPartidaInicial()" class="btn btn-dark w-100">Añadir</button></div>
+            </div>
+            <ul id="lista-previa-partidas" class="mt-2 small text-muted"></ul>
+        </div>
+        <button onclick="finalizarRegistro()" class="btn btn-3d w-100 mt-4 p-3 fs-5">GENERAR ACCESO</button>
+    </div>
+
+    <div id="pantalla-acceso" class="card card-dashboard p-4 section-hidden text-center">
+        <h3 class="monto-grande">Acceso Confirmado</h3>
+        <p>Tu código de acceso:</p>
+        <h1 id="display-codigo" class="text-success fw-bold"></h1>
+        <div id="qrcode" class="d-flex justify-content-center my-3"></div>
+        <input type="text" id="input-login" class="form-control text-center mb-3" placeholder="Ingresa PIN">
+        <button onclick="login()" class="btn btn-3d w-100">ENTRAR AL DASHBOARD</button>
+    </div>
+
+    <div id="pantalla-dashboard" class="section-hidden">
+        <div class="card card-dashboard p-4 mb-4">
+            <div class="text-center">
+                <p class="text-muted mb-0">Saldo Disponible</p>
+                <h1 id="saldo-restante" class="monto-grande display-4">$13,500,000.00</h1>
+            </div>
+            <div style="height: 300px;">
+                <canvas id="graficaGasto"></canvas>
+            </div>
+        </div>
+
+        <div class="card card-dashboard p-4 mb-4">
+            <h5 class="fw-bold mb-3">Historial de Capturas (Verificación)</h5>
+            <div class="table-responsive">
+                <table class="table table-hover tabla-bitacora">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Partida</th>
+                            <th>Monto</th>
+                            <th>Fecha Doc.</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bitacora-cuerpo">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card card-dashboard p-4">
+            <h5 class="fw-bold">Captura de Comprobación Fiscal</h5>
+            <div class="row g-3 mt-1">
+                <input type="hidden" id="edit-index" value="-1">
+                <div class="col-md-4">
+                    <label class="small fw-bold">Partida</label>
+                    <select id="select-partida" class="form-select"></select>
+                </div>
+                <div class="col-md-4">
+                    <label class="small fw-bold">Monto MXN</label>
+                    <input type="number" id="monto-comp" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="small fw-bold">Fecha del Documento</label>
+                    <input type="date" id="fecha-doc" class="form-control">
+                </div>
+                <div class="col-12 d-flex gap-2">
+                    <button onclick="registrarGasto()" id="btn-registrar" class="btn btn-3d flex-grow-1 p-3">CAPTURAR PARTIDA</button>
+                    <button onclick="cierreFinal()" class="btn btn-dark p-3">CIERRE DE SESIÓN</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
-    // 1. PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE (Lo que copiaste en el paso 4)
-    const firebaseConfig = {
-        apiKey: "TU_API_KEY",
-        authDomain: "TU_DOMINIO.firebaseapp.com",
-        projectId: "TU_PROJECT_ID",
-        storageBucket: "TU_STORAGE_BUCKET",
-        messagingSenderId: "TU_ID",
-        appId: "TU_APP_ID"
-    };
+    let partidasNombres = [];
+    let comprobaciones = [];
+    let saldoInicial = 13500000;
+    let chartObj;
 
-    // Inicializar Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    // 2. LÓGICA DEL ADMINISTRADOR
-    function mostrarPantallaAdmin() {
-        const pass = prompt("Código Maestro de Administrador:");
-        if (pass === "Admin100583") {
-            document.getElementById('pantalla-registro').classList.add('section-hidden');
-            document.getElementById('pantalla-acceso').classList.add('section-hidden');
-            document.getElementById('pantalla-dashboard').classList.add('section-hidden');
-            document.getElementById('pantalla-admin').classList.remove('section-hidden');
-            cargarUsuariosAdmin();
-        } else {
-            alert("Acceso denegado.");
+    // --- REGISTRO ---
+    function salvarPartidaInicial() {
+        const p = document.getElementById('input-partida-nombre').value;
+        if(p) {
+            partidasNombres.push(p);
+            document.getElementById('lista-previa-partidas').innerHTML += `<li>${p}</li>`;
+            document.getElementById('input-partida-nombre').value = '';
         }
     }
 
-    function cargarUsuariosAdmin() {
-        const lista = document.getElementById('lista-usuarios-admin');
-        lista.innerHTML = '<tr><td colspan="5">Cargando datos de la nube...</td></tr>';
+    function finalizarRegistro() {
+        if(partidasNombres.length === 0) return alert("Agregue partidas.");
+        const pin = Math.floor(1000 + Math.random()*9000);
+        document.getElementById('display-codigo').innerText = pin;
+        document.getElementById('pantalla-registro').classList.add('section-hidden');
+        document.getElementById('pantalla-acceso').classList.remove('section-hidden');
         
-        // Aquí el código le pregunta a Firebase por todos los usuarios
-        db.collection("usuarios").get().then((querySnapshot) => {
-            lista.innerHTML = '';
-            querySnapshot.forEach((doc) => {
-                const u = doc.data();
-                lista.innerHTML += `
-                    <tr class="${u.bloqueado ? 'table-danger' : ''}">
-                        <td>${u.nombre} ${u.apellidos}</td>
-                        <td>${u.codigo}</td>
-                        <td>$${u.montoAsignado.toLocaleString()}</td>
-                        <td><span class="badge ${u.bloqueado ? 'bg-danger' : 'bg-success'}">${u.bloqueado ? 'Bloqueado' : 'Activo'}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-info" onclick="verEstadisticas('${doc.id}')">Ver Detalle</button>
-                            <button class="btn btn-sm btn-warning" onclick="toggleBloqueo('${doc.id}', ${u.bloqueado})">
-                                ${u.bloqueado ? 'Desbloquear' : 'Bloquear'}
-                            </button>
-                        </td>
-                    </tr>`;
-            });
+        const select = document.getElementById('select-partida');
+        partidasNombres.forEach(n => {
+            let opt = document.createElement('option');
+            opt.text = n; opt.value = n; select.add(opt);
+        });
+
+        new QRCode(document.getElementById("qrcode"), { text: ""+pin, width: 128, height: 128 });
+    }
+
+    function login() {
+        document.getElementById('pantalla-acceso').classList.add('section-hidden');
+        document.getElementById('pantalla-dashboard').classList.remove('section-hidden');
+        renderGrafica();
+    }
+
+    // --- DASHBOARD LOGIC ---
+    function registrarGasto() {
+        const partida = document.getElementById('select-partida').value;
+        const monto = parseFloat(document.getElementById('monto-comp').value);
+        const fecha = document.getElementById('fecha-doc').value;
+        const editIndex = parseInt(document.getElementById('edit-index').value);
+
+        if(!monto || !fecha) return alert("Complete los campos.");
+
+        const nuevaData = { partida, monto, fecha };
+
+        if(editIndex === -1) {
+            comprobaciones.push(nuevaData);
+        } else {
+            comprobaciones[editIndex] = nuevaData;
+            document.getElementById('edit-index').value = "-1";
+            document.getElementById('btn-registrar').innerText = "CAPTURAR PARTIDA";
+        }
+
+        limpiarCampos();
+        actualizarTodo();
+    }
+
+    function actualizarTodo() {
+        // Recalcular Saldo
+        let totalGastado = comprobaciones.reduce((sum, item) => sum + item.monto, 0);
+        let saldoActual = saldoInicial - totalGastado;
+        document.getElementById('saldo-restante').innerText = "$" + saldoActual.toLocaleString('es-MX', {minimumFractionDigits: 2});
+        
+        // Actualizar Tabla
+        const cuerpo = document.getElementById('bitacora-cuerpo');
+        cuerpo.innerHTML = '';
+        comprobaciones.forEach((item, index) => {
+            cuerpo.innerHTML += `
+                <tr>
+                    <td>${item.partida}</td>
+                    <td>$${item.monto.toLocaleString()}</td>
+                    <td>${item.fecha}</td>
+                    <td class="text-center">
+                        <button class="btn-edit px-2 mx-1" onclick="editarGasto(${index})">Editar</button>
+                        <button class="btn-delete px-2 mx-1" onclick="eliminarGasto(${index})">Eliminar</button>
+                    </td>
+                </tr>`;
+        });
+
+        updateChartData();
+    }
+
+    function eliminarGasto(index) {
+        if(confirm("¿Seguro que desea eliminar esta captura?")) {
+            comprobaciones.splice(index, 1);
+            actualizarTodo();
+        }
+    }
+
+    function editarGasto(index) {
+        const item = comprobaciones[index];
+        document.getElementById('select-partida').value = item.partida;
+        document.getElementById('monto-comp').value = item.monto;
+        document.getElementById('fecha-doc').value = item.fecha;
+        document.getElementById('edit-index').value = index;
+        document.getElementById('btn-registrar').innerText = "GUARDAR CAMBIOS";
+        document.getElementById('monto-comp').focus();
+    }
+
+    function limpiarCampos() {
+        document.getElementById('monto-comp').value = '';
+        document.getElementById('fecha-doc').value = '';
+    }
+
+    // --- GRÁFICA CON TOOLTIPS ---
+    function renderGrafica() {
+        const ctx = document.getElementById('graficaGasto').getContext('2d');
+        chartObj = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Saldo Disponible', ...comprobaciones.map(c => c.partida)],
+                datasets: [{
+                    data: [saldoInicial, ...comprobaciones.map(c => c.monto)],
+                    backgroundColor: ['#0d47a1', '#d4af37', '#004d40', '#c0392b', '#16a085', '#2980b9']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                let value = context.parsed || 0;
+                                return `${label}: $${value.toLocaleString()} MXN`;
+                            }
+                        }
+                    }
+                }
+            }
         });
     }
 
-    // Función para exportar a CSV (Compatible con Excel)
-    function exportarExcel() {
-        let csv = "Nombre,Codigo,Monto,Estado\n";
-        // Lógica para recorrer los datos y crear el archivo...
-        alert("Generando reporte para reunión...");
-        // (Aquí se activaría la descarga del archivo)
+    function updateChartData() {
+        let totalGastado = comprobaciones.reduce((sum, item) => sum + item.monto, 0);
+        chartObj.data.labels = ['Saldo Disponible', ...comprobaciones.map(c => c.partida)];
+        chartObj.data.datasets[0].data = [saldoInicial - totalGastado, ...comprobaciones.map(c => c.monto)];
+        chartObj.update();
+    }
+
+    function cierreFinal() {
+        alert("Cierre exitoso. Fecha de captura: " + new Date().toLocaleString());
+        location.reload();
     }
 </script>
 
-<div id="pantalla-admin" class="card card-dashboard p-4 section-hidden">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="header-title text-primary">Panel de Control: Administrador</h2>
-        <button onclick="exportarExcel()" class="btn btn-success btn-sm">Descargar Reporte Excel</button>
-    </div>
-    
-    <div class="table-responsive">
-        <table class="table table-striped align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Usuario</th>
-                    <th>Código PIN</th>
-                    <th>Monto Proyecto</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="lista-usuarios-admin">
-                </tbody>
-        </table>
-    </div>
-    <button onclick="location.reload()" class="btn btn-outline-secondary mt-3">Salir del Panel</button>
-</div>
+</body>
+</html>
