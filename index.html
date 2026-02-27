@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plataforma Operativa - FondeoEmprende2026</title>
+    <title>FondeoEmprende2026 - Control Operativo</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,38 +12,28 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --azul: #0a192f; --dorado: #d4af37; --verde: #004d40; --gris-f: #f8f9fa; }
-        body { background: var(--gris-f); font-family: 'Segoe UI', sans-serif; }
-        
-        /* Navbar con funcionalidad de retorno */
+        :root { --azul: #0a192f; --dorado: #d4af37; --verde: #004d40; --gris: #f8f9fa; }
+        body { background: var(--gris); font-family: 'Segoe UI', sans-serif; }
         .navbar { background: var(--azul); border-bottom: 3px solid var(--dorado); padding: 10px 0; }
-        .navbar-brand { cursor: pointer; transition: 0.3s; }
-        .navbar-brand:hover { opacity: 0.8; transform: scale(1.02); }
-        .navbar-brand img { height: 50px; background: white; padding: 2px; border-radius: 5px; }
-        
+        .navbar-brand { cursor: pointer; display: flex; align-items: center; text-decoration: none; }
+        .navbar-brand img { height: 50px; background: white; padding: 2px; border-radius: 5px; margin-right: 15px; }
         .card-custom { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.08); background: white; margin-bottom: 20px; }
-        .btn-3d { background: var(--verde); color: white; border: none; padding: 12px; border-bottom: 4px solid #002b24; font-weight: bold; border-radius: 12px; transition: 0.2s; }
-        .btn-3d:active { transform: translateY(3px); border-bottom: 0; }
+        .btn-3d { background: var(--verde); color: white; border: none; padding: 12px; border-bottom: 4px solid #002b24; font-weight: bold; border-radius: 12px; }
         .section-hidden { display: none !important; }
-        
-        /* Estilos Admin */
-        .admin-row { font-size: 0.85rem; vertical-align: middle; }
-        .status-badge { padding: 5px 10px; border-radius: 20px; font-weight: bold; }
-        
-        #asistente-btn { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; background: var(--dorado); color: var(--azul); border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.3); font-size: 30px; z-index: 2000; cursor: pointer; }
+        .table-admin { font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-dark shadow">
-    <div class="container d-flex justify-content-between align-items-center">
-        <a class="navbar-brand d-flex align-items-center" href="https://proyectoemprende2026.github.io/Principal/">
+    <div class="container d-flex justify-content-between">
+        <a class="navbar-brand" href="https://proyectoemprende2026.github.io/Principal/">
             <img src="https://raw.githubusercontent.com/proyectoemprende2026/Plataforma/main/LogoFondeoEmprende2026.jpg" alt="Logo">
-            <span class="ms-3 fw-bold d-none d-sm-inline text-white">FondeoEmprende2026</span>
+            <span class="fw-bold text-white">FondeoEmprende2026</span>
         </a>
-        <div class="d-flex gap-2">
-            <button onclick="navegar('pantalla-login')" class="btn btn-outline-warning btn-sm fw-bold">YA TENGO MI PIN</button>
-            <button onclick="accesoAdmin()" class="btn btn-sm btn-light fw-bold">ADMIN</button>
+        <div>
+            <button onclick="navegar('pantalla-login')" class="btn btn-outline-warning btn-sm me-2">YA TENGO PIN</button>
+            <button onclick="accesoAdmin()" class="btn btn-sm btn-light">ADMIN</button>
         </div>
     </div>
 </nav>
@@ -51,68 +41,79 @@
 <div class="container mt-4 pb-5">
 
     <div id="pantalla-registro" class="row justify-content-center">
-        <div class="col-md-7 col-lg-6">
-            <div class="card card-custom p-4 text-center">
-                <h3 class="fw-bold mb-4">Registro de Beneficiario</h3>
-                <div class="row g-3 text-start">
-                    <div class="col-sm-6"><label class="small fw-bold">Nombre</label><input type="text" id="reg-nombre" class="form-control" placeholder="Nombre(s)"></div>
-                    <div class="col-sm-6"><label class="small fw-bold">Apellidos</label><input type="text" id="reg-apellidos" class="form-control" placeholder="Apellidos"></div>
-                    <div class="col-12"><label class="small fw-bold">Nombre del Proyecto</label><input type="text" id="proy-nombre" class="form-control" placeholder="Ej. Expansión Tecnológica"></div>
-                    <div class="col-12"><label class="small fw-bold">Link Drive Proyecto</label><input type="url" id="reg-link-proyecto" class="form-control" placeholder="https://drive.google.com/..."></div>
-                </div>
-                <div class="mt-4 p-3 bg-light rounded-4 border">
-                    <h6 class="fw-bold small">Definir Partidas Presupuestales</h6>
+        <div class="col-md-6">
+            <div class="card card-custom p-4">
+                <h4 class="fw-bold text-center mb-4">Alta de Beneficiario</h4>
+                <input type="text" id="reg-nombre" class="form-control mb-2" placeholder="Nombre completo">
+                <input type="text" id="proy-nombre" class="form-control mb-3" placeholder="Nombre del proyecto">
+                <div class="p-3 bg-light rounded mb-3 text-start">
+                    <p class="small fw-bold mb-2">Añadir partidas de presupuesto:</p>
                     <div class="input-group mb-2">
-                        <input type="text" id="partida-input" class="form-control" placeholder="Ej: Maquinaria">
-                        <button onclick="addPartida()" class="btn btn-dark">Añadir</button>
+                        <input type="text" id="partida-input" class="form-control" placeholder="Ej: Infraestructura">
+                        <button onclick="addPartida()" class="btn btn-dark"> + </button>
                     </div>
-                    <ul id="lista-partidas" class="text-start small text-muted"></ul>
+                    <ul id="lista-partidas" class="small mb-0 list-unstyled"></ul>
                 </div>
-                <button onclick="crearCuenta()" class="btn btn-3d w-100 mt-4">GENERAR ACCESO</button>
+                <button onclick="crearCuenta()" class="btn btn-3d w-100">FINALIZAR Y GENERAR ACCESO</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pantalla-exito" class="row justify-content-center section-hidden">
+        <div class="col-md-5 text-center">
+            <div class="card card-custom p-4 border-top border-4 border-warning">
+                <h3 class="text-success fw-bold">¡Acceso Correcto!</h3>
+                <p>Tu PIN de acceso operativo es:</p>
+                <h1 id="show-pin" class="display-2 fw-bold text-navy"></h1>
+                <div id="qrcode" class="d-flex justify-content-center my-3"></div>
+                <p class="small text-danger fw-bold">⚠️ Toma captura de pantalla ahora.</p>
+                <button onclick="navegar('pantalla-login')" class="btn btn-dark w-100">CONTINUAR AL LOGIN</button>
             </div>
         </div>
     </div>
 
     <div id="pantalla-login" class="row justify-content-center section-hidden">
-        <div class="col-md-5">
+        <div class="col-md-4">
             <div class="card card-custom p-4 text-center">
-                <h4 class="fw-bold">Acceso Clientes</h4>
-                <p class="text-muted small">Ingresa tu PIN de 4 dígitos</p>
-                <input type="text" id="login-pin" class="form-control form-control-lg text-center fs-2 fw-bold mb-4" maxlength="4" placeholder="0000">
+                <h5 class="fw-bold">Acceso con PIN</h5>
+                <input type="text" id="login-pin" class="form-control form-control-lg text-center fw-bold my-4" maxlength="4" placeholder="0000">
                 <button onclick="validarPin()" class="btn btn-3d w-100">ENTRAR AL DASHBOARD</button>
-                <button onclick="navegar('pantalla-registro')" class="btn btn-link btn-sm mt-3 text-secondary text-decoration-none">← Volver al Registro</button>
+                <button onclick="navegar('pantalla-registro')" class="btn btn-link btn-sm mt-3 text-secondary text-decoration-none">Nuevo Beneficiario</button>
             </div>
         </div>
     </div>
 
     <div id="pantalla-dashboard" class="section-hidden">
         <div class="row">
-            <div class="col-lg-5">
-                <div class="card card-custom p-4 text-center">
-                    <h5 id="dash-user-name" class="fw-bold text-uppercase">--</h5>
-                    <p class="small text-muted mb-4" id="dash-proy-name">--</p>
-                    <h2 id="dash-saldo" class="fw-bold display-6 mb-4">$13,500,000.00</h2>
-                    <div style="height: 250px;"><canvas id="mainChart"></canvas></div>
+            <div class="col-md-5">
+                <div class="card card-custom p-4 text-center shadow">
+                    <h5 id="dash-user-name" class="fw-bold text-navy text-uppercase">--</h5>
+                    <p id="dash-proy-name" class="small text-muted mb-3">--</p>
+                    <div class="mb-1"><span class="badge bg-primary">DISPONIBLE</span></div>
+                    <h2 id="dash-saldo" class="fw-bold display-6 mb-4">$0.00</h2>
+                    <div style="height: 220px;"><canvas id="mainChart"></canvas></div>
                 </div>
             </div>
-            <div class="col-lg-7">
+            <div class="col-md-7">
                 <div class="card card-custom p-4 border-top border-4 border-success">
-                    <h6 class="fw-bold mb-3">SUBIR COMPROBACIÓN FISCAL</h6>
-                    <div class="row g-2 text-start">
-                        <div class="col-md-6"><label class="small fw-bold">Partida</label><select id="dash-sel-partida" class="form-select"></select></div>
-                        <div class="col-md-6"><label class="small fw-bold">Monto MXN</label><input type="number" id="dash-monto" class="form-control" placeholder="0.00"></div>
-                        <div class="col-12"><label class="small fw-bold">Enlace Comprobante (Drive)</label><input type="url" id="dash-link" class="form-control" placeholder="https://drive.google.com/..."></div>
-                        <button onclick="subirGasto()" class="btn btn-3d w-100 mt-3">ACTUALIZAR SALDO</button>
-                    </div>
+                    <h6 class="fw-bold mb-3">SUBIR COMPROBANTE FISCAL</h6>
+                    <label class="small fw-bold">Partida</label>
+                    <select id="dash-sel-partida" class="form-select mb-2"></select>
+                    <label class="small fw-bold">Monto (MXN)</label>
+                    <input type="number" id="dash-monto" class="form-control mb-2" placeholder="0.00">
+                    <label class="small fw-bold">Link de Evidencia (Drive)</label>
+                    <input type="url" id="dash-link" class="form-control mb-3" placeholder="https://drive.google.com/...">
+                    <button onclick="subirGasto()" class="btn btn-3d w-100">ACTUALIZAR SALDO Y REGISTRAR</button>
                 </div>
                 <div class="card card-custom p-4">
-                    <h6 class="fw-bold mb-3">HISTORIAL</h6>
+                    <h6 class="fw-bold mb-3">BITÁCORA DE GASTOS</h6>
                     <div class="table-responsive">
-                        <table class="table table-sm align-middle">
+                        <table class="table table-sm table-hover">
                             <tbody id="tabla-body" class="small"></tbody>
                         </table>
                     </div>
-                    <button onclick="cerrarDashboard()" class="btn btn-danger w-100 fw-bold mt-3">CERRAR SESIÓN</button>
+                    <hr>
+                    <button onclick="location.reload()" class="btn btn-outline-danger w-100 fw-bold">CERRAR SESIÓN SEGURA</button>
                 </div>
             </div>
         </div>
@@ -120,23 +121,16 @@
 
     <div id="pantalla-admin" class="section-hidden">
         <div class="card card-custom p-4 shadow-lg">
-            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-                <h4 class="fw-bold text-navy mb-0">Panel Maestro de Auditoría</h4>
-                <button onclick="navegar('pantalla-registro')" class="btn btn-sm btn-secondary">Salir de Admin</button>
+            <div class="d-flex justify-content-between mb-4">
+                <h5 class="fw-bold">Auditoría Maestra</h5>
+                <button onclick="navegar('pantalla-registro')" class="btn btn-sm btn-secondary">Cerrar</button>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-dark small">
-                        <tr>
-                            <th>Beneficiario</th>
-                            <th>Proyecto</th>
-                            <th>PIN</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
+                <table class="table table-admin">
+                    <thead class="table-dark">
+                        <tr><th>Beneficiario</th><th>PIN</th><th>Proyecto</th><th>Estado</th><th>Acciones</th></tr>
                     </thead>
-                    <tbody id="admin-table-body" class="admin-row">
-                        </tbody>
+                    <tbody id="admin-table-body"></tbody>
                 </table>
             </div>
         </div>
@@ -145,7 +139,7 @@
 </div>
 
 <script>
-// CONFIG FIREBASE
+// CONFIGURACIÓN FIREBASE
 const firebaseConfig = { apiKey: "AIzaSyA1T0OaksBYi9-E9MlIUJvKnoQ2e6uOCx8", authDomain: "proyectoemprende26.firebaseapp.com", projectId: "proyectoemprende26", storageBucket: "proyectoemprende26.firebasestorage.app", messagingSenderId: "57446946914", appId: "1:57446946914:web:cf9ff716e038b866d8193b" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -153,105 +147,130 @@ const db = firebase.firestore();
 let v_partidas = []; let v_user = null; let v_chart = null;
 
 function navegar(id) {
-    document.getElementById('pantalla-registro').classList.add('section-hidden');
-    document.getElementById('pantalla-login').classList.add('section-hidden');
-    document.getElementById('pantalla-dashboard').classList.add('section-hidden');
-    document.getElementById('pantalla-admin').classList.add('section-hidden');
-    if(document.getElementById('pantalla-exito')) document.getElementById('pantalla-exito').classList.add('section-hidden');
-    
+    const screens = ['pantalla-registro', 'pantalla-login', 'pantalla-dashboard', 'pantalla-admin', 'pantalla-exito'];
+    screens.forEach(s => { if(document.getElementById(s)) document.getElementById(s).classList.add('section-hidden'); });
     document.getElementById(id).classList.remove('section-hidden');
 }
 
-function addPartida() { const i = document.getElementById('partida-input'); if(i.value) { v_partidas.push(i.value); document.getElementById('lista-partidas').innerHTML += `<li>• ${i.value}</li>`; i.value = ''; } }
+function addPartida() {
+    const i = document.getElementById('partida-input');
+    if(i.value) {
+        v_partidas.push(i.value);
+        document.getElementById('lista-partidas').innerHTML += `<li><span class="text-success">✔</span> ${i.value}</li>`;
+        i.value = '';
+    }
+}
 
 async function crearCuenta() {
     const nom = document.getElementById('reg-nombre').value;
     const proy = document.getElementById('proy-nombre').value;
     const pin = Math.floor(1000 + Math.random() * 9000).toString();
-    if(!nom || v_partidas.length === 0) return alert("Faltan datos.");
+    if(!nom || v_partidas.length === 0) return alert("Error: Debe ingresar nombre y al menos una partida.");
+
     await db.collection("usuarios").doc(pin).set({ nombre: nom, proyecto: proy, pin: pin, partidas: v_partidas, gastos: [], saldoInicial: 13500000, bloqueado: false });
-    alert("Usuario Creado. Tu PIN es: " + pin);
-    navegar('pantalla-login');
+    
+    document.getElementById('show-pin').innerText = pin;
+    document.getElementById('qrcode').innerHTML = "";
+    new QRCode(document.getElementById("qrcode"), { text: pin, width: 140, height: 140 });
+    navegar('pantalla-exito');
 }
 
 async function validarPin() {
-    const pin = document.getElementById('login-pin').value;
-    const doc = await db.collection("usuarios").doc(pin).get();
+    const pinInput = document.getElementById('login-pin').value;
+    const doc = await db.collection("usuarios").doc(pinInput).get();
     if(doc.exists) {
         v_user = doc.data();
-        if(v_user.bloqueado) return alert("Acceso bloqueado por auditoría.");
+        if(v_user.bloqueado) return alert("Acceso bloqueado por el administrador.");
+        
         document.getElementById('dash-user-name').innerText = v_user.nombre;
         document.getElementById('dash-proy-name').innerText = v_user.proyecto;
-        const sel = document.getElementById('dash-sel-partida'); sel.innerHTML = '';
-        v_user.partidas.forEach(p => { sel.add(new Option(p, p)); });
-        actualizarUI(); navegar('pantalla-dashboard');
-    } else { alert("PIN incorrecto."); }
+        const sel = document.getElementById('dash-sel-partida');
+        sel.innerHTML = '';
+        v_user.partidas.forEach(p => sel.add(new Option(p,p)));
+        
+        actualizarFinanzas(); // Carga inicial de saldos
+        navegar('pantalla-dashboard');
+    } else { alert("PIN no registrado."); }
 }
 
-function actualizarUI() {
-    const gastado = v_user.gastos.reduce((a, b) => a + b.monto, 0);
-    const saldo = 13500000 - gastado;
-    document.getElementById('dash-saldo').innerText = "$" + saldo.toLocaleString('es-MX', {minimumFractionDigits:2});
-    const body = document.getElementById('tabla-body'); body.innerHTML = '';
-    v_user.gastos.slice().reverse().forEach(g => { body.innerHTML += `<tr><td>${g.partida}</td><td>$${g.monto.toLocaleString()}</td><td><a href="${g.link}" target="_blank">🔗</a></td></tr>`; });
+// VERIFICACIÓN DE MOTOR DE CÁLCULO
+async function subirGasto() {
+    const monto = parseFloat(document.getElementById('dash-monto').value);
+    const partida = document.getElementById('dash-sel-partida').value;
+    const link = document.getElementById('dash-link').value;
+
+    if(!monto || !link) return alert("Por favor complete monto y link de Drive.");
+
+    // Guardar en array local
+    v_user.gastos.push({ partida: partida, monto: monto, link: link, fecha: new Date().toLocaleDateString() });
+    
+    // Sincronizar con Firebase
+    await db.collection("usuarios").doc(v_user.pin).update({ gastos: v_user.gastos });
+    
+    // Limpiar campos y refrescar UI
+    document.getElementById('dash-monto').value = '';
+    document.getElementById('dash-link').value = '';
+    
+    actualizarFinanzas(); // Recalcular todo
+    alert("Saldo actualizado correctamente.");
+}
+
+function actualizarFinanzas() {
+    // Cálculo matemático robusto
+    const totalGastado = v_user.gastos.reduce((acc, obj) => acc + obj.monto, 0);
+    const saldoActual = 13500000 - totalGastado;
+    
+    // Actualizar Textos
+    document.getElementById('dash-saldo').innerText = "$" + saldoActual.toLocaleString('es-MX', {minimumFractionDigits: 2});
+    
+    // Actualizar Tabla
+    const body = document.getElementById('tabla-body');
+    body.innerHTML = '';
+    v_user.gastos.slice().reverse().forEach(g => {
+        body.innerHTML += `<tr><td>${g.partida}</td><td class="fw-bold">$${g.monto.toLocaleString()}</td><td><a href="${g.link}" target="_blank" class="btn btn-sm btn-outline-primary">📂</a></td></tr>`;
+    });
+
+    // Actualizar Gráfica
     const ctx = document.getElementById('mainChart').getContext('2d');
     if(v_chart) v_chart.destroy();
-    v_chart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Disponible', 'Ejercido'], datasets: [{ data: [saldo, gastado], backgroundColor: ['#0a192f', '#d4af37'], borderWidth: 0 }] }, options: { maintainAspectRatio: false } });
+    v_chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Disponible', 'Ejercido'],
+            datasets: [{ data: [saldoActual, totalGastado], backgroundColor: ['#0a192f', '#d4af37'], borderWidth: 0 }]
+        },
+        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    });
 }
 
-// CORRECCIÓN PANEL ADMIN
 function accesoAdmin() {
-    const pass = prompt("Clave Auditor:");
-    if(pass === "Admin100583") {
+    if(prompt("Clave Maestra:") === "Admin100583") {
         navegar('pantalla-admin');
-        cargarUsuariosAdmin();
-    } else {
-        alert("Clave incorrecta.");
+        renderAdmin();
     }
 }
 
-async function cargarUsuariosAdmin() {
+async function renderAdmin() {
+    const snap = await db.collection("usuarios").get();
     const tbody = document.getElementById('admin-table-body');
-    tbody.innerHTML = '<tr><td colspan="5" class="text-center">Cargando base de datos...</td></tr>';
-    
-    try {
-        const snapshot = await db.collection("usuarios").get();
-        tbody.innerHTML = '';
-        snapshot.forEach(doc => {
-            const u = doc.data();
-            const row = `
-                <tr>
-                    <td><strong class="text-navy">${u.nombre}</strong></td>
-                    <td>${u.proyecto}</td>
-                    <td><span class="badge bg-light text-dark border">PIN: ${u.pin}</span></td>
-                    <td>
-                        <span class="status-badge ${u.bloqueado ? 'bg-danger text-white' : 'bg-success text-white'}">
-                            ${u.bloqueado ? 'BLOQUEADO' : 'ACTIVO'}
-                        </span>
-                    </td>
-                    <td>
-                        <button onclick="toggleBloqueo('${u.pin}', ${u.bloqueado})" class="btn btn-sm btn-dark">
-                            ${u.bloqueado ? 'Desbloquear' : 'Bloquear'}
-                        </button>
-                    </td>
-                </tr>
-            `;
-            tbody.innerHTML += row;
-        });
-    } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-danger text-center">Error al cargar datos.</td></tr>';
-    }
+    tbody.innerHTML = '';
+    snap.forEach(doc => {
+        const u = doc.data();
+        tbody.innerHTML += `
+            <tr class="align-middle">
+                <td><strong>${u.nombre}</strong></td>
+                <td><code class="fs-6">${u.pin}</code></td>
+                <td>${u.proyecto}</td>
+                <td><span class="badge ${u.bloqueado ? 'bg-danger' : 'bg-success'}">${u.bloqueado ? 'Bloqueado' : 'Activo'}</span></td>
+                <td><button onclick="toggleU('${u.pin}', ${u.bloqueado})" class="btn btn-sm btn-dark">Alternar</button></td>
+            </tr>`;
+    });
 }
 
-async function toggleBloqueo(pin, estadoActual) {
-    if(confirm("¿Cambiar el estado de acceso para este usuario?")) {
-        await db.collection("usuarios").doc(pin).update({ bloqueado: !estadoActual });
-        cargarUsuariosAdmin(); // Recargar tabla
-    }
+async function toggleU(p, s) {
+    await db.collection("usuarios").doc(p).update({ bloqueado: !s });
+    renderAdmin();
 }
-
-function cerrarDashboard() { v_user = null; document.getElementById('login-pin').value = ''; navegar('pantalla-login'); }
-
 </script>
 </body>
 </html>
