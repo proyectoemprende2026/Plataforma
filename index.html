@@ -14,143 +14,119 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <style>
-        :root { --verde: #004d40; --dorado: #d4af37; --azul: #0a192f; }
-        body { background: #f4f7f6; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        :root { --azul: #0a192f; --dorado: #d4af37; --verde: #004d40; --gris: #f4f7f6; }
+        body { background: var(--gris); font-family: 'Segoe UI', sans-serif; }
         .navbar { background: var(--azul); border-bottom: 4px solid var(--dorado); }
-        .navbar-brand img { height: 40px; }
+        .card-custom { border-radius: 15px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .btn-3d { 
             background: var(--verde); color: white; border: none; 
-            border-bottom: 4px solid #00251a; font-weight: bold; transition: 0.1s;
+            border-bottom: 4px solid #00251a; font-weight: bold; 
         }
-        .btn-3d:active { border-bottom: 0; transform: translateY(4px); }
-        .card-custom { border-radius: 15px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .section-hidden { display: none; }
-        .text-link { color: #007bff; text-decoration: underline; cursor: pointer; }
-        
-        /* Asistente Flotante */
+        .btn-3d:active { transform: translateY(2px); border-bottom: 0; }
+        .section-hidden { display: none !important; }
         #asistente-btn {
-            position: fixed; bottom: 20px; right: 20px;
-            width: 60px; height: 60px; border-radius: 50%;
-            background: var(--dorado); color: var(--azul);
-            border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            font-size: 24px; z-index: 1000;
-        }
-        #guia-modal {
-            position: fixed; bottom: 90px; right: 20px;
-            width: 320px; max-height: 450px; overflow-y: auto;
-            background: white; border-radius: 15px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
-            padding: 20px; z-index: 1000; display: none;
+            position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px;
+            border-radius: 50%; background: var(--dorado); border: none; z-index: 1000;
         }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-dark p-2 shadow sticky-top">
+<nav class="navbar navbar-dark p-2 sticky-top">
     <div class="container d-flex justify-content-between align-items-center">
-        <span class="navbar-brand fw-bold d-flex align-items-center">
-            <img src="https://i.postimg.cc/mD8Rz90X/logotipo-fondeoemprende2026.png" alt="Logo">
-            <span class="d-none d-sm-inline ms-2 text-uppercase">Fondeo 2026</span>
-        </span>
+        <a href="index.html" class="navbar-brand fw-bold small">
+            <img src="https://i.postimg.cc/mD8Rz90X/logotipo-fondeoemprende2026.png" height="35" alt="Logo">
+            FONDEO 2026
+        </a>
         <div>
-            <button onclick="mostrarLogin()" class="btn btn-outline-warning btn-sm me-1">YA TENGO PIN</button>
-            <button onclick="accesoAdmin()" class="btn btn-outline-light btn-sm">Admin</button>
+            <button onclick="irAPantalla('pantalla-login')" class="btn btn-outline-warning btn-sm">YA TENGO PIN</button>
+            <button onclick="accesoAdmin()" class="btn btn-outline-light btn-sm ms-1">ADMIN</button>
         </div>
     </div>
 </nav>
 
 <div class="container mt-4 pb-5">
+
     <div id="pantalla-registro" class="card card-custom p-4">
-        <h2 class="text-primary fw-bold h4">Registro de Beneficiario</h2>
-        <div class="row g-3">
-            <div class="col-md-6"><input type="text" id="reg-nombre" class="form-control" placeholder="Nombre(s)"></div>
-            <div class="col-md-6"><input type="text" id="reg-apellidos" class="form-control" placeholder="Apellidos"></div>
+        <h4 class="fw-bold text-primary">Nuevo Registro</h4>
+        <div class="row g-2">
+            <div class="col-6"><input type="text" id="reg-nombre" class="form-control" placeholder="Nombre"></div>
+            <div class="col-6"><input type="text" id="reg-apellidos" class="form-control" placeholder="Apellidos"></div>
             <div class="col-12"><input type="text" id="proy-nombre" class="form-control" placeholder="Nombre del Proyecto"></div>
-            <div class="col-12">
-                <label class="small fw-bold">Link Google Drive (Proyecto Resumido):</label>
-                <input type="url" id="reg-link-proyecto" class="form-control" placeholder="https://drive.google.com/...">
-            </div>
+            <div class="col-12"><input type="url" id="reg-link-proyecto" class="form-control" placeholder="Link Drive Proyecto"></div>
         </div>
-        <div class="bg-light p-3 rounded mt-3 border">
-            <h6 class="small fw-bold">Presupuesto: Definir Partidas</h6>
-            <div class="input-group mb-2">
-                <input type="text" id="partida-input" class="form-control form-control-sm" placeholder="Ej. Maquinaria">
-                <button onclick="agregarPartidaLista()" class="btn btn-dark btn-sm">Añadir</button>
+        <div class="bg-light p-3 mt-3 border rounded">
+            <h6 class="small fw-bold">Partidas Presupuestales</h6>
+            <div class="input-group input-group-sm mb-2">
+                <input type="text" id="partida-input" class="form-control" placeholder="Ej. Maquinaria">
+                <button onclick="agregarPartidaLista()" class="btn btn-dark">Añadir</button>
             </div>
-            <ul id="lista-partidas-registro" class="small text-muted mb-0"></ul>
+            <ul id="lista-partidas-registro" class="small text-muted"></ul>
         </div>
-        <button onclick="crearUsuarioFirebase()" class="btn btn-3d w-100 mt-3 p-3">REGISTRARME</button>
+        <button onclick="crearUsuarioFirebase()" class="btn btn-3d w-100 mt-3 p-3">REGISTRAR PROYECTO</button>
     </div>
 
     <div id="pantalla-login" class="card card-custom p-4 section-hidden text-center">
-        <h3 class="fw-bold">Ingreso al Sistema</h3>
-        <p class="text-muted">Introduce tu PIN de 4 dígitos</p>
-        <div class="d-flex justify-content-center">
-            <input type="text" id="login-pin" class="form-control text-center mb-3 w-50 fs-2" maxlength="4" placeholder="0000">
-        </div>
-        <button onclick="loginUsuario()" class="btn btn-3d w-100">ENTRAR</button>
+        <h4 class="fw-bold">Acceso con PIN</h4>
+        <p class="text-muted small">Ingresa tu código de 4 dígitos</p>
+        <input type="text" id="login-pin" class="form-control form-control-lg text-center mx-auto mb-3" style="max-width: 200px;" maxlength="4" placeholder="0000">
+        <button onclick="loginUsuario()" class="btn btn-3d w-100">ENTRAR AL DASHBOARD</button>
+        <button onclick="irAPantalla('pantalla-registro')" class="btn btn-link btn-sm mt-2 text-secondary">No tengo PIN, registrarme</button>
     </div>
 
     <div id="pantalla-exito" class="card card-custom p-4 section-hidden text-center">
-        <h3 class="text-success fw-bold">¡Bienvenido!</h3>
-        <h1 id="display-codigo" class="display-1 fw-bold text-dark"></h1>
-        <div id="qrcode" class="d-flex justify-content-center my-3 border p-2 bg-white d-inline-block mx-auto"></div>
-        <button onclick="mostrarLogin()" class="btn btn-3d w-100">IR AL PANEL</button>
+        <h3 class="text-success fw-bold">¡Registro Exitoso!</h3>
+        <p class="mb-0">Tu PIN de acceso es:</p>
+        <h1 id="display-codigo" class="display-1 fw-bold"></h1>
+        <div id="qrcode" class="d-flex justify-content-center my-3"></div>
+        <div class="alert alert-warning small">Guarda este PIN. Lo necesitarás para cada acceso.</div>
+        <button onclick="irAPantalla('pantalla-login')" class="btn btn-3d w-100">IR AL DASHBOARD</button>
     </div>
 
     <div id="pantalla-dashboard" class="section-hidden">
         <div class="card card-custom p-4 text-center">
-            <h6 class="text-muted small">SALDO DISPONIBLE</h6>
-            <h1 id="saldo-display" class="display-5 fw-bold text-dark">$13,500,000.00</h1>
-            <div style="height: 200px;"><canvas id="chartGasto"></canvas></div>
+            <h2 id="nombre-usuario-display" class="h5 fw-bold text-uppercase mb-3"></h2>
+            <h6 class="text-muted small mb-0">SALDO DISPONIBLE</h6>
+            <h1 id="saldo-display" class="display-6 fw-bold">$13,500,000.00</h1>
+            <div style="height: 220px;"><canvas id="chartGasto"></canvas></div>
         </div>
 
-        <div class="card card-custom p-4 bg-white border-top border-4 border-primary">
-            <h5 class="fw-bold h6">CARGA FISCAL (FACTURAS)</h5>
-            <div class="row g-2">
-                <div class="col-12"><select id="dash-select-partida" class="form-select"></select></div>
-                <div class="col-12"><input type="number" id="dash-monto" class="form-control" placeholder="Monto MXN"></div>
-                <div class="col-12"><input type="url" id="dash-link-comprobante" class="form-control" placeholder="Link Drive del PDF"></div>
-                <div class="col-12"><button id="btn-registrar-gasto" onclick="registrarGasto()" class="btn btn-3d w-100 mt-2">CAPTURAR Y NOTIFICAR</button></div>
-            </div>
+        <div class="card card-custom p-4 border-top border-4 border-primary">
+            <h6 class="fw-bold">CARGAR COMPROBACIÓN FISCAL</h6>
+            <select id="dash-select-partida" class="form-select mb-2"></select>
+            <input type="number" id="dash-monto" class="form-control mb-2" placeholder="Monto MXN">
+            <input type="url" id="dash-link-comprobante" class="form-control mb-2" placeholder="Link de Factura (Drive)">
+            <button id="btn-registrar-gasto" onclick="registrarGasto()" class="btn btn-3d w-100">SUBIR Y NOTIFICAR</button>
         </div>
 
         <div class="card card-custom p-4">
-            <h5 class="fw-bold h6">HISTORIAL</h5>
+            <h6 class="fw-bold">HISTORIAL DE GASTOS</h6>
             <div class="table-responsive">
-                <table class="table table-sm align-middle small">
-                    <thead class="table-light"><tr><th>Partida</th><th>Monto</th><th>Doc</th></tr></thead>
+                <table class="table table-sm small">
+                    <thead><tr><th>Partida</th><th>Monto</th><th>Doc</th></tr></thead>
                     <tbody id="bitacora-cuerpo"></tbody>
                 </table>
             </div>
+            <button onclick="location.reload()" class="btn btn-outline-secondary btn-sm w-100 mt-2">Cerrar Sesión</button>
         </div>
     </div>
 
     <div id="pantalla-admin" class="card card-custom p-4 section-hidden">
-        <h3 class="fw-bold h5">Auditoría General</h3>
+        <h5 class="fw-bold border-bottom pb-2">Panel Maestro de Auditoría</h5>
         <div class="table-responsive">
-            <table class="table table-hover small">
-                <thead class="table-dark"><tr><th>Usuario</th><th>Doc</th><th>PIN</th><th>Acción</th></tr></thead>
+            <table class="table table-hover table-sm small">
+                <thead><tr><th>Usuario</th><th>PIN</th><th>Proyecto</th><th>Acción</th></tr></thead>
                 <tbody id="admin-tabla-usuarios"></tbody>
             </table>
         </div>
-        <button onclick="location.reload()" class="btn btn-secondary btn-sm w-100 mt-3">Cerrar Sesión</button>
+        <button onclick="location.reload()" class="btn btn-secondary btn-sm w-100 mt-3">Volver</button>
     </div>
 </div>
 
-<button id="asistente-btn" onclick="toggleGuia()">💡</button>
-<div id="guia-modal">
-    <h5 class="fw-bold border-bottom pb-2">Asistente Virtual</h5>
-    <div class="small">
-        <p><strong>1. ¿Cómo subo mis documentos?</strong><br>Súbelos a tu Google Drive, activa "Compartir con cualquier persona con el enlace" y pega ese link aquí.</p>
-        <p><strong>2. ¿Qué pasa cuando registro un gasto?</strong><br>El sistema envía automáticamente un correo al administrador con el link de tu factura.</p>
-        <p><strong>3. ¡Seguridad!</strong><br>No compartas tu PIN con nadie.</p>
-    </div>
-    <button class="btn btn-dark btn-sm w-100 mt-2" onclick="toggleGuia()">Cerrar</button>
-</div>
+<button id="asistente-btn" onclick="alert('Asistente: Usa tu PIN para entrar. Sube tus facturas a Drive y pega el link aquí. ¡El saldo se descuenta al instante!')">💡</button>
 
 <script>
-// CONFIGURACIÓN (REEMPLAZA CON TUS DATOS)
+// === CONFIGURACIÓN FIREBASE ===
 const firebaseConfig = {
     apiKey: "AIzaSyA1T0OaksBYi9-E9MlIUJvKnoQ2e6uOCx8",
     authDomain: "proyectoemprende26.firebaseapp.com",
@@ -159,35 +135,28 @@ const firebaseConfig = {
     messagingSenderId: "57446946914",
     appId: "1:57446946914:web:cf9ff716e038b866d8193b"
 };
-
-// CONFIGURACIÓN EMAILJS (RELLENA ESTO DESPUÉS DEL PASO 1)
-const EMAILJS_PUBLIC_KEY = "TU_PUBLIC_KEY"; 
-const EMAILJS_SERVICE_ID = "TU_SERVICE_ID";
-const EMAILJS_TEMPLATE_ID = "TU_TEMPLATE_ID";
-
-emailjs.init(EMAILJS_PUBLIC_KEY);
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// === VARIABLES DE ESTADO ===
 let partidasTemp = [];
 let usuarioActual = null;
 let chartObj = null;
 
-function toggleGuia() {
-    const m = document.getElementById('guia-modal');
-    m.style.display = m.style.display === 'block' ? 'none' : 'block';
+// === NAVEGACIÓN ENTRE PANTALLAS ===
+function irAPantalla(idPantalla) {
+    document.querySelectorAll('.card, #pantalla-dashboard, #pantalla-registro').forEach(div => {
+        div.classList.add('section-hidden');
+    });
+    document.getElementById(idPantalla).classList.remove('section-hidden');
 }
 
-function mostrarLogin() {
-    document.querySelectorAll('.card, #pantalla-dashboard, #pantalla-registro').forEach(e => e.classList.add('section-hidden'));
-    document.getElementById('pantalla-login').classList.remove('section-hidden');
-}
-
+// === FUNCIONES DE REGISTRO ===
 function agregarPartidaLista() {
-    const p = document.getElementById('partida-input').value;
-    if(p) {
-        partidasTemp.push(p);
-        document.getElementById('lista-partidas-registro').innerHTML += `<li>${p}</li>`;
+    const val = document.getElementById('partida-input').value;
+    if(val) {
+        partidasTemp.push(val);
+        document.getElementById('lista-partidas-registro').innerHTML += `<li>${val}</li>`;
         document.getElementById('partida-input').value = '';
     }
 }
@@ -196,88 +165,77 @@ async function crearUsuarioFirebase() {
     const nombre = document.getElementById('reg-nombre').value;
     const apellidos = document.getElementById('reg-apellidos').value;
     const proyecto = document.getElementById('proy-nombre').value;
-    const linkProyecto = document.getElementById('reg-link-proyecto').value;
+    const link = document.getElementById('reg-link-proyecto').value;
     const pin = Math.floor(1000 + Math.random() * 9000).toString();
 
-    if(!nombre || !linkProyecto || partidasTemp.length === 0) return alert("Completa todos los datos.");
+    if(!nombre || !link || partidasTemp.length === 0) return alert("Completa todos los campos.");
 
     await db.collection("usuarios").doc(pin).set({
-        nombre, apellidos, proyecto, codigo: pin, linkProyecto,
+        nombre, apellidos, proyecto, codigo: pin, linkProyecto: link,
         partidasNombres: partidasTemp, comprobaciones: [],
-        montoInicial: 13500000, bloqueado: false, fechaRegistro: new Date().toLocaleString()
+        montoInicial: 13500000, bloqueado: false
     });
+
     document.getElementById('display-codigo').innerText = pin;
-    document.querySelectorAll('.card').forEach(e => e.classList.add('section-hidden'));
-    document.getElementById('pantalla-exito').classList.remove('section-hidden');
-    new QRCode(document.getElementById("qrcode"), { text: pin, width: 140, height: 140 });
+    irAPantalla('pantalla-exito');
+    new QRCode(document.getElementById("qrcode"), { text: pin, width: 120, height: 120 });
 }
 
+// === FUNCIONES DE LOGIN Y DASHBOARD ===
 async function loginUsuario() {
     const pin = document.getElementById('login-pin').value;
+    if(!pin) return alert("Ingresa tu PIN");
+
     const doc = await db.collection("usuarios").doc(pin).get();
     if(doc.exists) {
         usuarioActual = doc.data();
-        if(usuarioActual.bloqueado) return alert("Usuario bloqueado.");
-        document.querySelectorAll('.card').forEach(e => e.classList.add('section-hidden'));
-        document.getElementById('pantalla-dashboard').classList.remove('section-hidden');
+        if(usuarioActual.bloqueado) return alert("Acceso restringido por administración.");
+        
+        // Configurar Dashboard
+        document.getElementById('nombre-usuario-display').innerText = "Bienvenido: " + usuarioActual.nombre;
         const sel = document.getElementById('dash-select-partida');
         sel.innerHTML = '';
         usuarioActual.partidasNombres.forEach(p => {
             let opt = document.createElement('option'); opt.text = p; opt.value = p; sel.add(opt);
         });
+
         actualizarUIUsuario();
-    } else { alert("PIN incorrecto."); }
+        irAPantalla('pantalla-dashboard');
+    } else {
+        alert("PIN no registrado.");
+    }
 }
 
 async function registrarGasto() {
     const partida = document.getElementById('dash-select-partida').value;
     const monto = parseFloat(document.getElementById('dash-monto').value);
     const link = document.getElementById('dash-link-comprobante').value;
-    const btn = document.getElementById('btn-registrar-gasto');
 
-    if(!monto || !link) return alert("Faltan datos de la factura.");
+    if(!monto || !link) return alert("Ingresa monto y enlace del documento.");
 
-    btn.disabled = true;
-    btn.innerText = "ENVIANDO NOTIFICACIÓN...";
+    usuarioActual.comprobaciones.push({ partida, monto, link, fecha: new Date().toLocaleDateString() });
+    await db.collection("usuarios").doc(usuarioActual.codigo).update({
+        comprobaciones: usuarioActual.comprobaciones
+    });
 
-    try {
-        // 1. Guardar en Firebase
-        usuarioActual.comprobaciones.push({ partida, monto, link, fecha: new Date().toLocaleDateString() });
-        await db.collection("usuarios").doc(usuarioActual.codigo).update({
-            comprobaciones: usuarioActual.comprobaciones
-        });
-
-        // 2. Enviar Correo mediante EmailJS
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-            nombre: usuarioActual.nombre + " " + usuarioActual.apellidos,
-            proyecto: usuarioActual.proyecto,
-            partida: partida,
-            monto: monto,
-            link: link
-        });
-
-        alert("Gasto registrado y Administrador notificado.");
-        document.getElementById('dash-monto').value = '';
-        document.getElementById('dash-link-comprobante').value = '';
-        actualizarUIUsuario();
-    } catch (error) {
-        alert("Error al procesar. Revisa tu conexión.");
-    } finally {
-        btn.disabled = false;
-        btn.innerText = "CAPTURAR GASTO";
-    }
+    alert("Gasto capturado con éxito.");
+    document.getElementById('dash-monto').value = '';
+    document.getElementById('dash-link-comprobante').value = '';
+    actualizarUIUsuario();
 }
 
 function actualizarUIUsuario() {
     const totalGastado = usuarioActual.comprobaciones.reduce((s, i) => s + i.monto, 0);
     const saldo = usuarioActual.montoInicial - totalGastado;
-    document.getElementById('saldo-display').innerText = "$" + saldo.toLocaleString('es-MX');
+    
+    document.getElementById('saldo-display').innerText = "$" + saldo.toLocaleString('es-MX', {minimumFractionDigits:2});
     
     const cuerpo = document.getElementById('bitacora-cuerpo');
     cuerpo.innerHTML = '';
-    usuarioActual.comprobaciones.forEach((c) => {
-        cuerpo.innerHTML += `<tr><td>${c.partida}</td><td>$${c.monto.toLocaleString()}</td><td><a href="${c.link}" target="_blank" class="text-link">Link</a></td></tr>`;
+    usuarioActual.comprobaciones.slice().reverse().forEach((c) => {
+        cuerpo.innerHTML += `<tr><td>${c.partida}</td><td>$${c.monto.toLocaleString()}</td><td><a href="${c.link}" target="_blank">🔗</a></td></tr>`;
     });
+
     renderGrafica(saldo, totalGastado);
 }
 
@@ -288,16 +246,16 @@ function renderGrafica(saldo, gastado) {
         type: 'doughnut',
         data: {
             labels: ['Disponible', 'Usado'],
-            datasets: [{ data: [saldo, gastado], backgroundColor: ['#0d47a1', '#d4af37'] }]
+            datasets: [{ data: [saldo, gastado], backgroundColor: ['#0d47a1', '#d4af37'], borderWeight: 0 }]
         },
-        options: { maintainAspectRatio: false }
+        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
     });
 }
 
-async function accesoAdmin() {
-    if(prompt("Código Maestro:") === "Admin100583") {
-        document.querySelectorAll('.card, #pantalla-dashboard').forEach(e => e.classList.add('section-hidden'));
-        document.getElementById('pantalla-admin').classList.remove('section-hidden');
+// === ADMIN ===
+function accesoAdmin() {
+    if(prompt("Clave Maestro:") === "Admin100583") {
+        irAPantalla('pantalla-admin');
         cargarUsuariosAdmin();
     }
 }
@@ -308,12 +266,12 @@ async function cargarUsuariosAdmin() {
     tabla.innerHTML = '';
     snap.forEach(doc => {
         const u = doc.data();
-        tabla.innerHTML += `<tr><td>${u.nombre}</td><td><a href="${u.linkProyecto}" target="_blank">📄</a></td><td><code>${u.codigo}</code></td><td><button onclick="toggleBloqueo('${u.codigo}', ${u.bloqueado})" class="btn btn-sm ${u.bloqueado ? 'btn-success':'btn-danger'}">${u.bloqueado ? 'OK':'Bloq'}</button></td></tr>`;
+        tabla.innerHTML += `<tr><td>${u.nombre}</td><td><code>${u.codigo}</code></td><td><a href="${u.linkProyecto}" target="_blank">📄</a></td><td><button onclick="toggleBloq('${u.codigo}', ${u.bloqueado})" class="btn btn-link btn-sm">${u.bloqueado?'Desbloq':'Bloq'}</button></td></tr>`;
     });
 }
 
-async function toggleBloqueo(pin, estado) {
-    await db.collection("usuarios").doc(pin).update({ bloqueado: !estado });
+async function toggleBloq(pin, est) {
+    await db.collection("usuarios").doc(pin).update({ bloqueado: !est });
     cargarUsuariosAdmin();
 }
 </script>
