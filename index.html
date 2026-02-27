@@ -1,0 +1,90 @@
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+
+<script>
+    // 1. PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE (Lo que copiaste en el paso 4)
+    const firebaseConfig = {
+        apiKey: "TU_API_KEY",
+        authDomain: "TU_DOMINIO.firebaseapp.com",
+        projectId: "TU_PROJECT_ID",
+        storageBucket: "TU_STORAGE_BUCKET",
+        messagingSenderId: "TU_ID",
+        appId: "TU_APP_ID"
+    };
+
+    // Inicializar Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // 2. LÓGICA DEL ADMINISTRADOR
+    function mostrarPantallaAdmin() {
+        const pass = prompt("Código Maestro de Administrador:");
+        if (pass === "Admin100583") {
+            document.getElementById('pantalla-registro').classList.add('section-hidden');
+            document.getElementById('pantalla-acceso').classList.add('section-hidden');
+            document.getElementById('pantalla-dashboard').classList.add('section-hidden');
+            document.getElementById('pantalla-admin').classList.remove('section-hidden');
+            cargarUsuariosAdmin();
+        } else {
+            alert("Acceso denegado.");
+        }
+    }
+
+    function cargarUsuariosAdmin() {
+        const lista = document.getElementById('lista-usuarios-admin');
+        lista.innerHTML = '<tr><td colspan="5">Cargando datos de la nube...</td></tr>';
+        
+        // Aquí el código le pregunta a Firebase por todos los usuarios
+        db.collection("usuarios").get().then((querySnapshot) => {
+            lista.innerHTML = '';
+            querySnapshot.forEach((doc) => {
+                const u = doc.data();
+                lista.innerHTML += `
+                    <tr class="${u.bloqueado ? 'table-danger' : ''}">
+                        <td>${u.nombre} ${u.apellidos}</td>
+                        <td>${u.codigo}</td>
+                        <td>$${u.montoAsignado.toLocaleString()}</td>
+                        <td><span class="badge ${u.bloqueado ? 'bg-danger' : 'bg-success'}">${u.bloqueado ? 'Bloqueado' : 'Activo'}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="verEstadisticas('${doc.id}')">Ver Detalle</button>
+                            <button class="btn btn-sm btn-warning" onclick="toggleBloqueo('${doc.id}', ${u.bloqueado})">
+                                ${u.bloqueado ? 'Desbloquear' : 'Bloquear'}
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+        });
+    }
+
+    // Función para exportar a CSV (Compatible con Excel)
+    function exportarExcel() {
+        let csv = "Nombre,Codigo,Monto,Estado\n";
+        // Lógica para recorrer los datos y crear el archivo...
+        alert("Generando reporte para reunión...");
+        // (Aquí se activaría la descarga del archivo)
+    }
+</script>
+
+<div id="pantalla-admin" class="card card-dashboard p-4 section-hidden">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="header-title text-primary">Panel de Control: Administrador</h2>
+        <button onclick="exportarExcel()" class="btn btn-success btn-sm">Descargar Reporte Excel</button>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Usuario</th>
+                    <th>Código PIN</th>
+                    <th>Monto Proyecto</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="lista-usuarios-admin">
+                </tbody>
+        </table>
+    </div>
+    <button onclick="location.reload()" class="btn btn-outline-secondary mt-3">Salir del Panel</button>
+</div>
